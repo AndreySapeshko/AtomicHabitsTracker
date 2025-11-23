@@ -44,7 +44,7 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
     env:
-      DJANGO_TEST: "1"
+      DJANGO_ENV: "ci"
 
     steps:
       - name: Check out code
