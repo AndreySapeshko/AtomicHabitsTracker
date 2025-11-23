@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "habits",
     "habit_instances",
     "telegrambot",
+    "core",
 ]
 
 MIDDLEWARE = [
