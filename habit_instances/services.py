@@ -64,6 +64,10 @@ def create_instance_for_habit(habit: Habit) -> HabitInstance | None:
         status=HabitInstanceStatus.SCHEDULED,
     )
 
+    from habit_instances.tasks import send_reminder_for_instance
+
+    send_reminder_for_instance.apply_async(args=[instance.id], eta=scheduled)
+
     return instance
 
 
@@ -78,3 +82,36 @@ def create_instances_for_all_habits():
             created.append(instance)
 
     return created
+
+
+def complete_instance(instance_id: int, telegram_chat_id: int):
+    instance = HabitInstance.objects.filter(id=instance_id).select_related("habit", "habit__user").first()
+    if not instance:
+        return False
+
+    # проверка принадлежности
+    if instance.habit.user.telegram_profile.chat_id != str(telegram_chat_id):
+        return False
+
+    now = timezone.now()
+    if now > instance.fix_deadline:
+        return False
+
+    instance.mark_completed()
+    return True
+
+
+def miss_instance(instance_id: int, telegram_chat_id: int):
+    instance = HabitInstance.objects.filter(id=instance_id).select_related("habit", "habit__user").first()
+    if not instance:
+        return False
+
+    if instance.habit.user.telegram_profile.chat_id != str(telegram_chat_id):
+        return False
+
+    now = timezone.now()
+    if now > instance.fix_deadline:
+        return False
+
+    instance.mark_failed()
+    return True
