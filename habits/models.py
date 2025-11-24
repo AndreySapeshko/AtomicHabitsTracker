@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
@@ -90,6 +91,32 @@ class Habit(models.Model):
             self.fix_minutes = interval["fix_minutes"]
 
         super().save(*args, **kwargs)
+
+    def clean(self):
+        # Приятная привычка
+        if self.is_pleasant:
+            if self.related_pleasant_habit is not None:
+                raise ValidationError("Приятная привычка не может иметь связанную награду.")
+            if self.reward_text:
+                raise ValidationError("Приятная привычка не может иметь текстовую награду.")
+
+        else:
+            # Полезная привычка — ровно одно наградное поле
+            related = self.related_pleasant_habit
+            reward = self.reward_text
+
+            if bool(related) == bool(reward):
+                raise ValidationError(
+                    "Полезная привычка должна иметь либо pleasant habit, либо reward text (только одно)."
+                )
+
+            if related:
+                if not related.is_pleasant:
+                    raise ValidationError("В качестве награды может выступать только приятная привычка.")
+                if related.user_id != self.user_id:
+                    raise ValidationError("Наградная привычка должна принадлежать тому же пользователю.")
+
+        super().clean()
 
     def __str__(self):
         return f"Habit({self.action}, pleasant={self.is_pleasant})"
