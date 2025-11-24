@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -116,6 +117,12 @@ REST_FRAMEWORK = {
     ],
 }
 
+CELERY_BEAT_SCHEDULE = {
+    "generate_daily_instances_every_midnight": {
+        "task": "habit_instances.tasks.generate_daily_instances",
+        "schedule": crontab(minute=0, hour=0),  # каждый день в 00:00
+    },
+}
 
 # ---------------------------
 # Celery (base defaults, override in env-specific settings)
