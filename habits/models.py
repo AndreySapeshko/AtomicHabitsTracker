@@ -39,11 +39,7 @@ class Habit(models.Model):
     Определение привычки (полезной или приятной).
     """
 
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
-        related_name="habits"
-    )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="habits")
 
     action = models.CharField(max_length=255)
     place = models.CharField(max_length=255)
@@ -58,26 +54,19 @@ class Habit(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="reward_for",
-        help_text="Приятная привычка – награда."
+        help_text="Приятная привычка – награда.",
     )
 
     reward_text = models.CharField(
-        max_length=255,
-        null=True,
-        blank=True,
-        help_text="Текстовая награда, если не pleasant habit."
+        max_length=255, null=True, blank=True, help_text="Текстовая награда, если не pleasant habit."
     )
 
     periodicity_days = models.PositiveSmallIntegerField(
-        choices=PERIODICITY_CHOICES,
-        default=1,
-        help_text="1, 2, 3, 5, 7 дней."
+        choices=PERIODICITY_CHOICES, default=1, help_text="1, 2, 3, 5, 7 дней."
     )
 
     repeat_limit = models.PositiveSmallIntegerField(
-        choices=LIMIT_CHOICES,
-        default=21,
-        help_text="21, 30, 45 повторов."
+        choices=LIMIT_CHOICES, default=21, help_text="21, 30, 45 повторов."
     )
 
     # Окна ожидания — теперь настоящие DB-поля
@@ -94,10 +83,7 @@ class Habit(models.Model):
 
     def save(self, *args, **kwargs):
         # Автоматическое назначение grace/fix по periodicity
-        interval = next(
-            (i for i in HABIT_INTERVALS if i["periodicity_days"] == self.periodicity_days),
-            None
-        )
+        interval = next((i for i in HABIT_INTERVALS if i["periodicity_days"] == self.periodicity_days), None)
 
         if interval:
             self.grace_minutes = interval["grace_minutes"]

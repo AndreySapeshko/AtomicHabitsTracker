@@ -17,20 +17,14 @@ class HabitInstance(models.Model):
     Создаётся планировщиком.
     """
 
-    habit = models.ForeignKey(
-        "habits.Habit",
-        on_delete=models.CASCADE,
-        related_name="instances"
-    )
+    habit = models.ForeignKey("habits.Habit", on_delete=models.CASCADE, related_name="instances")
 
     scheduled_datetime = models.DateTimeField()
     confirm_deadline = models.DateTimeField()
     fix_deadline = models.DateTimeField()
 
     status = models.CharField(
-        max_length=20,
-        choices=HabitInstanceStatus.choices,
-        default=HabitInstanceStatus.SCHEDULED
+        max_length=20, choices=HabitInstanceStatus.choices, default=HabitInstanceStatus.SCHEDULED
     )
 
     completed_at = models.DateTimeField(null=True, blank=True)
@@ -54,4 +48,3 @@ class HabitInstance(models.Model):
             self.status in {HabitInstanceStatus.SCHEDULED, HabitInstanceStatus.PENDING, HabitInstanceStatus.MISSED}
             and now <= self.fix_deadline
         )
-
