@@ -2,7 +2,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 
-
 # Интервалы (вынесены за пределы класса — теперь доступны внутри)
 HABIT_INTERVALS = [
     {"periodicity_days": 1, "grace_minutes": 60, "fix_minutes": 300},
