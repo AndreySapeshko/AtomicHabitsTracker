@@ -89,6 +89,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
 ]
 
+AUTH_USER_MODEL = "users.User"
 
 # ---------------------------
 # Static & Media
