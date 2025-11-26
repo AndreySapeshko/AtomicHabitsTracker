@@ -1,4 +1,5 @@
 from aiogram import Router, types
+from asgiref.sync import sync_to_async
 
 from habit_instances.services import complete_instance, miss_instance
 
@@ -17,17 +18,21 @@ async def callbacks(callback: types.CallbackQuery):
 
     user_id = callback.from_user.id
 
+    original_text = callback.message.text
+
     if action == "done":
-        ok = complete_instance(instance_id, user_id)
+        ok = await sync_to_async(complete_instance)(instance_id, user_id)
         if ok:
-            return await callback.message.edit_text("Отлично! Привычка отмечена как выполненная 👍")
+            new_text = original_text + "\n\nОтлично! Привычка отмечена как выполненная 👍"
+            return await callback.message.edit_text(new_text, reply_markup=None)
         else:
             return await callback.answer("Нельзя выполнить эту привычку.", show_alert=True)
 
     elif action == "missed":
-        ok = miss_instance(instance_id, user_id)
+        ok = await sync_to_async(miss_instance)(instance_id, user_id)
         if ok:
-            return await callback.message.edit_text("Записал. Привычка пропущена ⛔")
+            new_text = original_text + "\n\nЗаписал. Привычка пропущена ⛔"
+            return await callback.message.edit_text(new_text, reply_markup=None)
         else:
             return await callback.answer("Нельзя изменить статус.", show_alert=True)
     return None
