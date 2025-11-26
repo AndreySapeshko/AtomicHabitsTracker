@@ -1,5 +1,5 @@
-from django.db import models
 from django.conf import settings
+from django.db import models
 
 
 class TelegramProfile(models.Model):
@@ -8,6 +8,7 @@ class TelegramProfile(models.Model):
     chat_id = models.CharField(max_length=64, unique=True)
     timezone = models.CharField(max_length=64, default="UTC")
     is_active = models.BooleanField(default=False)
+    binding_code = models.CharField(max_length=32, null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 

@@ -48,3 +48,12 @@ class HabitInstance(models.Model):
             self.status in {HabitInstanceStatus.SCHEDULED, HabitInstanceStatus.PENDING, HabitInstanceStatus.MISSED}
             and now <= self.fix_deadline
         )
+
+    def mark_completed(self):
+        self.status = HabitInstanceStatus.COMPLETED
+        self.completed_at = timezone.now()
+        self.save()
+
+    def mark_failed(self):
+        self.status = HabitInstanceStatus.MISSED
+        self.save()

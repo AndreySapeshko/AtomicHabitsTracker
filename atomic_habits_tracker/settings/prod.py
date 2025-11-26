@@ -15,6 +15,10 @@ DATABASES = {
     }
 }
 
+REDIS_HOST = env("REDIS_HOST", default="redis")
+REDIS_PORT = env("REDIS_PORT", default=6379)
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
 # Security
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
