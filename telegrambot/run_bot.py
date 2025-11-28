@@ -34,7 +34,6 @@ async def redis_listener(bot: Bot):
     while True:
         # Blocking wait for a new command
         raw = await r.brpop("telegram:out")
-        logger.info("Получена задача telegram:out")
 
         _, data = raw
 
