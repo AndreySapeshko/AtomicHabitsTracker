@@ -187,3 +187,27 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# -----------------------------------
+# FRONTEND (React + Vite + Node)
+# -----------------------------------
+
+# Node dependencies
+aht_app_frontend/habit-frontend/node_modules/
+aht_app_frontend/habit-frontend/.turbo/
+aht_app_frontend/habit-frontend/.parcel-cache/
+aht_app_frontend/habit-frontend/.npm/
+aht_app_frontend/habit-frontend/.yarn/
+
+# Vite build output
+aht_app_frontend/habit-frontend/dist/
+aht_app_frontend/habit-frontend/.vite/
+
+# JS logs
+aht_app_frontend/habit-frontend/npm-debug.log*
+aht_app_frontend/habit-frontend/yarn-debug.log*
+aht_app_frontend/habit-frontend/yarn-error.log*
+aht_app_frontend/habit-frontend/pnpm-debug.log*
+
+# Env
+aht_app_frontend/habit-frontend/.env*

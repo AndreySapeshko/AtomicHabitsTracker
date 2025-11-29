@@ -18,6 +18,11 @@ REDIS_PORT = env("REDIS_PORT", default=6379)
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
 
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+]
 
 # CELERY_WORKER_LOG_FILE = None  # Отключаем файловые логи Celery
 # CELERY_WORKER_REDIRECT_STDOUTS = False  # Не перенаправлять stdout

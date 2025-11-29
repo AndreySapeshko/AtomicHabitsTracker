@@ -1,8 +1,11 @@
 from aiogram import Dispatcher
 
-from telegrambot.handlers.basic import router as basic_router
-from telegrambot.handlers.callbacks import router as callback_router
+from telegrambot.handlers import get_handlers
 
 dp = Dispatcher()
-dp.include_router(basic_router)
-dp.include_router(callback_router)
+
+
+def setup_routers():
+    for router in get_handlers():
+        dp.include_router(router)
+    return dp

@@ -6,7 +6,7 @@ import redis.asyncio as aioredis
 from aiogram import Bot
 from django.conf import settings
 
-from telegrambot.dispatcher import dp
+from telegrambot.dispatcher import dp, setup_routers
 
 logger = logging.getLogger("telegrambot")
 
@@ -34,7 +34,6 @@ async def redis_listener(bot: Bot):
     while True:
         # Blocking wait for a new command
         raw = await r.brpop("telegram:out")
-        logger.info("Получена задача telegram:out")
 
         _, data = raw
 
@@ -52,6 +51,7 @@ async def redis_listener(bot: Bot):
 
 
 async def main():
+    setup_routers()
     bot = Bot(settings.TELEGRAM_BOT_TOKEN)
     logger.info("🚀 Telegram bot started")
 

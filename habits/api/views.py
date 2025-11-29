@@ -34,6 +34,7 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Пользователь видит только свои привычки."""
+
         return Habit.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
