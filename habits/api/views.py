@@ -145,3 +145,30 @@ class HabitViewSet(viewsets.ModelViewSet):
                 break
 
         return streak
+
+    @action(detail=True, methods=["get"])
+    def instances(self, request, pk=None):
+        habit = self.get_object()
+
+        qs = HabitInstance.objects.filter(habit=habit).order_by("-scheduled_datetime")
+
+        # фильтр по статусу
+        status = request.query_params.get("status")
+        if status:
+            qs = qs.filter(status=status)
+
+        # фильтр по дате
+        date = request.query_params.get("date")
+        if date:
+            qs = qs.filter(scheduled_datetime__date=date)
+
+        return Response([
+            {
+                "id": inst.id,
+                "scheduled_datetime": inst.scheduled_datetime,
+                "confirm_deadline": inst.confirm_deadline,
+                "status": inst.status,
+            }
+            for inst in qs
+        ])
+

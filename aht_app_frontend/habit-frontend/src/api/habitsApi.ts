@@ -1,5 +1,6 @@
 import { apiClient } from "./apiClient";
 import type { Habit, HabitCreateData } from "../types/Habit";
+import type { HabitInstanceFilters } from "../types/HabitInstance";
 
 export const habitsApi = {
   getHabits() {
@@ -24,6 +25,10 @@ export const habitsApi = {
 
   details(id: number) {
     return apiClient.get(`/habits/${id}/details/`);
+  },
+
+  instances(habitId: number, params?: HabitInstanceFilters) {
+    return apiClient.get(`/habits/${habitId}/instances/`, { params });
   },
 
   getPleasantHabits() {

@@ -6,6 +6,7 @@ import HabitsPage from "./pages/HabitsPage";
 import HabitCreatePage from "./pages/HabitCreatePage";
 import HabitEditPage from "./pages/HabitEditPage";
 import HabitDetailsPage from "./pages/HabitDetailsPage";
+import HabitInstancesPage from "./pages/HabitInstancesPage";
 
 function App() {
   return (
@@ -76,6 +77,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <HabitDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/habits/:id/instances"
+            element={
+              <ProtectedRoute>
+                <HabitInstancesPage />
               </ProtectedRoute>
             }
           />

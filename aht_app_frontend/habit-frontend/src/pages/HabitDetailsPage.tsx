@@ -124,6 +124,10 @@ export default function HabitDetailsPage() {
         ))}
       </ul>
 
+      <Link to={`/habits/${habit.id}/instances`}>
+        <button>📋 История выполнения</button>
+      </Link>
+
       <br />
 
       <button onClick={toggleActive}>
