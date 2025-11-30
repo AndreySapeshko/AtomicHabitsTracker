@@ -35,4 +35,5 @@ export interface HabitCreateData {
   repeat_limit: number;
 
   is_public: boolean;
+  is_active?: boolean;
 }

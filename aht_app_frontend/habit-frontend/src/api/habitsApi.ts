@@ -6,12 +6,16 @@ export const habitsApi = {
     return apiClient.get<Habit[]>("/habits/");
   },
 
+  getHabit(id: number) {
+    return apiClient.get<Habit>(`/habits/${id}/`);
+  },
+
   createHabit(data: HabitCreateData) {
     return apiClient.post<Habit>("/habits/", data);
   },
 
   updateHabit(id: number, data: Partial<HabitCreateData>) {
-    return apiClient.put<Habit>(`/habits/${id}/`, data);
+    return apiClient.patch<Habit>(`/habits/${id}/`, data);
   },
 
   deleteHabit(id: number) {
@@ -22,4 +26,3 @@ export const habitsApi = {
     return apiClient.get<Habit[]>("/habits/?is_pleasant=true");
   },
 };
-

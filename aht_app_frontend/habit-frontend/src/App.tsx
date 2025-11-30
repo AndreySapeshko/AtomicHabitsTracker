@@ -4,6 +4,8 @@ import RegisterPage from "./pages/RegisterPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import HabitsPage from "./pages/HabitsPage";
 import HabitCreatePage from "./pages/HabitCreatePage";
+import HabitEditPage from "./pages/HabitEditPage";
+
 
 function App() {
   return (
@@ -47,6 +49,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <HabitCreatePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/habits/:id/edit"
+            element={
+              <ProtectedRoute>
+                <HabitEditPage />
               </ProtectedRoute>
             }
           />
