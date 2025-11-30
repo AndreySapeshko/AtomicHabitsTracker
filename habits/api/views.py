@@ -2,6 +2,7 @@ from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from habit_instances.models import HabitInstance
 from habits.api.serializers import HabitSerializer
 from habits.models import Habit
 
@@ -81,3 +82,66 @@ class HabitViewSet(viewsets.ModelViewSet):
             for i in queryset
         ]
         return Response(data)
+
+    @action(detail=True, methods=["get"])
+    def details(self, request, pk=None):
+        habit = self.get_object()
+
+        # --- История инстансов ---
+        instances = (
+            HabitInstance.objects
+            .filter(habit=habit)
+            .order_by("-scheduled_datetime")
+        )
+
+        # Счётчики статусов
+        completed = instances.filter(status="completed").count()
+        missed = instances.filter(status="missed").count()
+        pending = instances.filter(status__in=["scheduled", "pending"]).count()
+
+        # --- Стрик ---
+        streak = self._calculate_streak(habit)
+
+        # --- Прогресс: сколько осталось по лимиту ---
+        remaining = max(habit.repeat_limit - completed, 0)
+
+        return Response({
+            "habit": HabitSerializer(habit).data,
+            "progress": {
+                "completed": completed,
+                "missed": missed,
+                "pending": pending,
+                "remaining": remaining,
+                "streak": streak,
+            },
+            "instances": [
+                {
+                    "id": inst.id,
+                    "scheduled_datetime": inst.scheduled_datetime,
+                    "status": inst.status,
+                }
+                for inst in instances[:20]
+            ]
+        })
+
+    # 🔥 Логика вычисления streak
+    def _calculate_streak(self, habit):
+        """
+        Стрик = количество последовательных выполнений,
+        начиная с последнего выполненного подряд без пропусков.
+        """
+        instances = (
+            HabitInstance.objects
+            .filter(habit=habit)
+            .order_by("-scheduled_datetime")
+        )
+
+        streak = 0
+
+        for inst in instances:
+            if inst.status in ("completed", "completed_late"):
+                streak += 1
+            else:
+                break
+
+        return streak

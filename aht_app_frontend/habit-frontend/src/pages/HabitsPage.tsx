@@ -43,6 +43,9 @@ export default function HabitsPage() {
           {habits.map((h) => (
             <li key={h.id}>
               <strong>{h.action}</strong> – {h.time_of_day} ({h.place})
+              <Link to={`/habits/${h.id}`}>
+                <button>Открыть</button>
+              </Link>
               <Link to={`/habits/${h.id}/edit`}>
                 <button>Редактировать</button>
               </Link>
