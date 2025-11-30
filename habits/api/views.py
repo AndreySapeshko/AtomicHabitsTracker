@@ -1,6 +1,7 @@
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.utils import timezone
 
 from habit_instances.models import HabitInstance
 from habits.api.serializers import HabitSerializer
@@ -171,4 +172,88 @@ class HabitViewSet(viewsets.ModelViewSet):
             }
             for inst in qs
         ])
+
+    @action(detail=True, methods=["get"])
+    def stats(self, request, pk=None):
+        habit = self.get_object()
+
+        instances = HabitInstance.objects.filter(habit=habit).order_by("scheduled_datetime")
+
+        # Счётчики
+        total_completed = instances.filter(status__in=["completed", "completed_late"]).count()
+        total_missed = instances.filter(status__in=["missed", "fix_expired"]).count()
+        total_pending = instances.filter(status__in=["scheduled", "pending"]).count()
+
+        # Стрики
+        current_streak = self._calculate_current_streak(instances)
+        max_streak = self._calculate_max_streak(instances)
+
+        # Прогресс (для полезных habits)
+        progress_percent = None
+        if not habit.is_pleasant and habit.repeat_limit:
+            progress_percent = round((total_completed / habit.repeat_limit) * 100, 1)
+            progress_percent = min(progress_percent, 100)
+
+        # Последние 30 дней
+        today = timezone.now().date()
+        last30 = instances.filter(
+            scheduled_datetime__date__gte=today - timezone.timedelta(days=30)
+        )
+
+        last_30_days = {
+            inst.scheduled_datetime.date().isoformat(): inst.status
+            for inst in last30
+        }
+
+        # Статистика по неделям
+        per_week = []
+        week_map = {}
+
+        for inst in instances:
+            week = inst.scheduled_datetime.date().isocalendar()[:2]  # (year, week)
+            key = f"{week[0]}-W{week[1]}"
+            if key not in week_map:
+                week_map[key] = {"completed": 0, "missed": 0}
+            if inst.status in ["completed", "completed_late"]:
+                week_map[key]["completed"] += 1
+            if inst.status in ["missed", "fix_expired"]:
+                week_map[key]["missed"] += 1
+
+        for week, data in week_map.items():
+            per_week.append({"week": week, **data})
+
+        return Response({
+            "habit_id": habit.id,
+            "total_completed": total_completed,
+            "total_missed": total_missed,
+            "total_pending": total_pending,
+            "current_streak": current_streak,
+            "max_streak": max_streak,
+            "limit": habit.repeat_limit,
+            "progress_percent": progress_percent,
+            "last_30_days": last_30_days,
+            "per_week": per_week,
+        })
+
+    def _calculate_current_streak(self, instances):
+        streak = 0
+        for inst in reversed(instances):
+            if inst.status in ["completed", "completed_late"]:
+                streak += 1
+            else:
+                break
+        return streak
+
+    def _calculate_max_streak(self, instances):
+        max_streak = 0
+        current = 0
+
+        for inst in instances:
+            if inst.status in ["completed", "completed_late"]:
+                current += 1
+            else:
+                max_streak = max(max_streak, current)
+                current = 0
+
+        return max(max_streak, current)
 

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
+import type { HabitStats } from "../types/HabitStats";
 
 interface HabitDetailsResponse {
   habit: Habit;
@@ -24,6 +25,17 @@ export default function HabitDetailsPage() {
 
   const [data, setData] = useState<HabitDetailsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [stats, setStats] = useState<HabitStats | null>(null);
+
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await habitsApi.stats(Number(id));
+      setStats(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  }, [id]);
 
   const loadDetails = useCallback(async () => {
     try {
@@ -38,8 +50,9 @@ export default function HabitDetailsPage() {
   useEffect(() => {
     (async () => {
       await loadDetails();
+      await loadStats();
     })();
-  }, [loadDetails]);
+  }, [loadDetails, loadStats]);
 
   async function toggleActive() {
     if (!data) return;
@@ -114,6 +127,63 @@ export default function HabitDetailsPage() {
       <p>🎯 Осталось до цели: {progress.remaining}</p>
 
       <br />
+
+      <br />
+      <h3>Статистика</h3>
+
+      {stats ? (
+        <div style={{ paddingLeft: 10 }}>
+          <p>
+            <b>🔥 Текущий стрик:</b> {stats.current_streak}
+          </p>
+          <p>
+            <b>🏆 Максимальный стрик:</b> {stats.max_streak}
+          </p>
+
+          {!habit.is_pleasant && (
+            <>
+              <p>
+                <b>🎯 Лимит:</b> {stats.repeat_limit}
+              </p>
+              <p>
+                <b>📊 Прогресс (%):</b> {stats.progress_percent}%
+              </p>
+            </>
+          )}
+
+          <p>
+            <b>✔ Всего выполнено:</b> {stats.total_completed}
+          </p>
+          <p>
+            <b>❌ Всего пропущено:</b> {stats.total_missed}
+          </p>
+          <p>
+            <b>⏳ В ожидании:</b> {stats.total_pending}
+          </p>
+
+          <br />
+
+          <h4>Последние 30 дней</h4>
+          <ul>
+            {Object.entries(stats.last_30_days).map(([date, status]) => (
+              <li key={date}>
+                {date}: {status}
+              </li>
+            ))}
+          </ul>
+
+          <h4>По неделям</h4>
+          <ul>
+            {stats.per_week.map((w) => (
+              <li key={w.week}>
+                {w.week}: ✔ {w.completed}, ❌ {w.missed}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p>Загрузка статистики...</p>
+      )}
 
       <h3>Последние инстансы</h3>
       <ul>
