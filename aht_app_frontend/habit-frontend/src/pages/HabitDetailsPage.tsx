@@ -3,6 +3,9 @@ import { useParams, Link } from "react-router-dom";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
 import type { HabitStats } from "../types/HabitStats";
+import { ProgressBar } from "../components/ProgressBar";
+import { CompletionPieChart } from "../components/CompletionPieChart";
+import { WeeklyBarChart } from "../components/WeeklyBarChart";
 
 interface HabitDetailsResponse {
   habit: Habit;
@@ -26,7 +29,6 @@ export default function HabitDetailsPage() {
   const [data, setData] = useState<HabitDetailsResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<HabitStats | null>(null);
-
 
   const loadStats = useCallback(async () => {
     try {
@@ -71,6 +73,9 @@ export default function HabitDetailsPage() {
 
   if (error) return <div style={{ padding: 20 }}>{error}</div>;
   if (!data) return <div style={{ padding: 20 }}>Загрузка...</div>;
+  if (!stats) {
+    return <div style={{ padding: 20 }}>Загрузка статистики...</div>;
+  }
 
   const habit = data.habit;
   const progress = data.progress;
@@ -184,6 +189,53 @@ export default function HabitDetailsPage() {
       ) : (
         <p>Загрузка статистики...</p>
       )}
+
+      <h3>📊 Визуальная статистика</h3>
+
+      {/* Прогресс бар */}
+      {stats.progress_percent !== null && (
+        <>
+          <h4>Прогресс к цели</h4>
+          <ProgressBar percent={stats.progress_percent} />
+        </>
+      )}
+
+      {/* Streak UI */}
+      <div style={{ marginTop: 20, padding: 10, border: "1px solid #ccc", borderRadius: 8 }}>
+        <h4>🔥 Streak</h4>
+        <p>
+          Текущий: <b>{stats.current_streak}</b>
+        </p>
+        <p>
+          Максимальный: <b>{stats.max_streak}</b>
+        </p>
+      </div>
+
+      {/* Pie chart */}
+      <div style={{ marginTop: 20 }}>
+        <h4>Соотношение выполнено/пропущено</h4>
+        <CompletionPieChart
+          completed={stats.total_completed}
+          missed={stats.total_missed}
+          pending={stats.total_pending}
+        />
+      </div>
+
+      {/* Weekly bars */}
+      <div style={{ marginTop: 20 }}>
+        <h4>Статистика по неделям</h4>
+        <WeeklyBarChart data={stats.per_week} />
+      </div>
+
+      <div style={{ marginTop: 20, padding: 10, border: "1px solid #ddd", borderRadius: 8 }}>
+        <h3>🔥 Streak</h3>
+        <p>
+          <b>Текущий стрик:</b> {stats.current_streak} дней
+        </p>
+        <p>
+          <b>Максимальный стрик:</b> {stats.max_streak} дней
+        </p>
+      </div>
 
       <h3>Последние инстансы</h3>
       <ul>
