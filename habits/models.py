@@ -1,3 +1,5 @@
+from datetime import time
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -43,7 +45,7 @@ class Habit(models.Model):
 
     action = models.CharField(max_length=255)
     place = models.CharField(max_length=255)
-    time_of_day = models.TimeField()
+    time_of_day = models.TimeField(default=time(0, 0))
 
     # Тип
     is_pleasant = models.BooleanField(default=False)
@@ -70,8 +72,8 @@ class Habit(models.Model):
     )
 
     # Окна ожидания — теперь настоящие DB-поля
-    grace_minutes = models.PositiveIntegerField()
-    fix_minutes = models.PositiveIntegerField()
+    grace_minutes = models.PositiveIntegerField(default=0)
+    fix_minutes = models.PositiveIntegerField(default=0)
 
     is_public = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

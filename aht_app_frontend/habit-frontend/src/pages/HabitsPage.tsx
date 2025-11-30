@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
+import { Link } from "react-router-dom";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -28,13 +29,20 @@ export default function HabitsPage() {
     <div>
       <h2>Мои привычки</h2>
 
+      <Link to="/habits/create">
+        <button>Создать привычку</button>
+      </Link>
+
+      <br />
+      <br />
+
       {habits.length === 0 ? (
         <p>Нет привычек. Создайте первую!</p>
       ) : (
         <ul>
           {habits.map((h) => (
             <li key={h.id}>
-              <strong>{h.action}</strong> – {h.time} ({h.place})
+              <strong>{h.action}</strong> – {h.time_of_day} ({h.place})
             </li>
           ))}
         </ul>

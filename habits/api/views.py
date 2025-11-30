@@ -33,9 +33,20 @@ class HabitViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated, IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        """Пользователь видит только свои привычки."""
+        """Пользователь видит только свои привычки.
+        Указав значение is_pleasant = True, получим только приятные,
+        is_pleasant = False, получим только полезные. """
 
-        return Habit.objects.filter(user=self.request.user)
+        qs = Habit.objects.filter(user=self.request.user)
+
+        is_pleasant = self.request.query_params.get("is_pleasant")
+        if is_pleasant is not None:
+            if is_pleasant.lower() == "true":
+                qs = qs.filter(is_pleasant=True)
+            elif is_pleasant.lower() == "false":
+                qs = qs.filter(is_pleasant=False)
+
+        return qs
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -46,7 +57,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         GET /api/habits/public/
         Публичные привычки (чужие).
         """
-        queryset = Habit.objects.filter(is_public=True, is_active=True)
+        queryset = Habit.objects.filter(ё=True, is_active=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 

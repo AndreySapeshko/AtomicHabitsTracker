@@ -17,5 +17,9 @@ export const habitsApi = {
   deleteHabit(id: number) {
     return apiClient.delete(`/habits/${id}/`);
   },
+
+  getPleasantHabits() {
+    return apiClient.get<Habit[]>("/habits/?is_pleasant=true");
+  },
 };
 
