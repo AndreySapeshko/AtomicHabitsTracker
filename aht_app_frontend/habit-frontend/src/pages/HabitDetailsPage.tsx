@@ -3,9 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
 import type { HabitStats } from "../types/HabitStats";
-import { ProgressBar } from "../components/ProgressBar";
-import { CompletionPieChart } from "../components/CompletionPieChart";
-import { WeeklyBarChart } from "../components/WeeklyBarChart";
+import { Card } from "../components/Card";
 
 interface HabitDetailsResponse {
   habit: Habit;
@@ -27,27 +25,28 @@ export default function HabitDetailsPage() {
   const { id } = useParams();
 
   const [data, setData] = useState<HabitDetailsResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<HabitStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const loadStats = useCallback(async () => {
-    try {
-      const res = await habitsApi.stats(Number(id));
-      setStats(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  }, [id]);
+  const habitId = Number(id);
 
   const loadDetails = useCallback(async () => {
     try {
-      const res = await habitsApi.details(Number(id));
+      const res = await habitsApi.details(habitId);
       setData(res.data);
-    } catch (err) {
-      console.error(err);
+    } catch {
       setError("Ошибка загрузки данных привычки");
     }
-  }, [id]);
+  }, [habitId]);
+
+  const loadStats = useCallback(async () => {
+    try {
+      const res = await habitsApi.stats(habitId);
+      setStats(res.data);
+    } catch {
+      console.error("Ошибка загрузки статистики");
+    }
+  }, [habitId]);
 
   useEffect(() => {
     (async () => {
@@ -58,206 +57,101 @@ export default function HabitDetailsPage() {
 
   async function toggleActive() {
     if (!data) return;
-
     try {
       await habitsApi.updateHabit(data.habit.id, {
         is_active: !data.habit.is_active,
       });
-
-      loadDetails(); // перегружаем после обновления
-    } catch (err) {
-      console.error(err);
+      loadDetails();
+    } catch {
       setError("Не удалось изменить статус активности");
     }
   }
 
   if (error) return <div style={{ padding: 20 }}>{error}</div>;
-  if (!data) return <div style={{ padding: 20 }}>Загрузка...</div>;
-  if (!stats) {
-    return <div style={{ padding: 20 }}>Загрузка статистики...</div>;
-  }
+  if (!data || !stats) return <div style={{ padding: 20 }}>Загрузка...</div>;
 
   const habit = data.habit;
   const progress = data.progress;
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Привычка: {habit.action}</h2>
+    <div style={{ padding: 20, maxWidth: 800 }}>
+      <h2 style={{ marginBottom: 20 }}>Привычка: {habit.action}</h2>
 
-      <p>
-        <b>Место:</b> {habit.place}
-      </p>
-      <p>
-        <b>Тип:</b> {habit.is_pleasant ? "Приятная" : "Полезная"}
-      </p>
-      <p>
-        <b>Периодичность:</b> {habit.periodicity_days} дней
-      </p>
-      <p>
-        <b>Лимит:</b> {habit.repeat_limit} повторов
-      </p>
-      <p>
-        <b>Публичная:</b> {habit.is_public ? "Да" : "Нет"}
-      </p>
-      <p>
-        <b>Активность:</b> {habit.is_active ? "Активна" : "Неактивна"}
-      </p>
+      {/* Основная информация */}
+      <Card>
+        <h3>ℹ Информация</h3>
+        <p><b>Место:</b> {habit.place}</p>
+        <p><b>Тип:</b> {habit.is_pleasant ? "Приятная" : "Полезная"}</p>
+        <p><b>Периодичность:</b> каждые {habit.periodicity_days} дня</p>
+        <p><b>Лимит:</b> {habit.repeat_limit} повторов</p>
+        <p><b>Публичная:</b> {habit.is_public ? "Да" : "Нет"}</p>
+        <p><b>Статус:</b> {habit.is_active ? "Активна" : "Неактивна"}</p>
+      </Card>
 
+      {/* Награда */}
       {!habit.is_pleasant && (
-        <>
-          <p>
-            <b>Время дня:</b> {habit.time_of_day}
-          </p>
+        <Card>
+          <h3>🎁 Награда</h3>
+          <p><b>Время:</b> {habit.time_of_day}</p>
 
           {habit.reward_text && (
-            <p>
-              <b>Награда:</b> {habit.reward_text}
-            </p>
+            <p><b>Награда:</b> {habit.reward_text}</p>
           )}
+
           {habit.related_pleasant_habit && (
             <p>
-              <b>Награда:</b> Приятная привычка #{habit.related_pleasant_habit}
+              <b>Наградная привычка:</b>{" "}
+              Приятная #{habit.related_pleasant_habit}
             </p>
           )}
-        </>
+        </Card>
       )}
 
-      <br />
+      {/* Прогресс */}
+      <Card>
+        <h3>📈 Прогресс</h3>
+        <p>✔ Выполнено: {progress.completed}</p>
+        <p>❌ Пропущено: {progress.missed}</p>
+        <p>⏳ В ожидании: {progress.pending}</p>
+        <p>🔥 Streak: {progress.streak}</p>
+        <p>🎯 Осталось повторов: {progress.remaining}</p>
+      </Card>
 
-      <h3>Прогресс</h3>
-      <p>✔ Выполнено: {progress.completed}</p>
-      <p>❌ Пропущено: {progress.missed}</p>
-      <p>⏳ В ожидании: {progress.pending}</p>
-      <p>🔥 Streak: {progress.streak}</p>
-      <p>🎯 Осталось до цели: {progress.remaining}</p>
+      {/* Последние инстансы */}
+      <Card>
+        <h3>🕒 Последние 20 выполнений</h3>
+        <ul>
+          {data.instances.map((inst) => (
+            <li key={inst.id}>
+              {inst.scheduled_datetime} — {inst.status}
+            </li>
+          ))}
+        </ul>
+      </Card>
 
-      <br />
+      {/* Кнопки */}
+      <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+        <Link to={`/habits/${habit.id}/instances`}>
+          <button>📋 История</button>
+        </Link>
 
-      <br />
-      <h3>Статистика</h3>
+        <Link to={`/habits/${habit.id}/analytics`}>
+          <button>📊 Аналитика</button>
+        </Link>
 
-      {stats ? (
-        <div style={{ paddingLeft: 10 }}>
-          <p>
-            <b>🔥 Текущий стрик:</b> {stats.current_streak}
-          </p>
-          <p>
-            <b>🏆 Максимальный стрик:</b> {stats.max_streak}
-          </p>
+        <Link to={`/habits/${habit.id}/edit`}>
+          <button>✏ Редактировать</button>
+        </Link>
 
-          {!habit.is_pleasant && (
-            <>
-              <p>
-                <b>🎯 Лимит:</b> {stats.repeat_limit}
-              </p>
-              <p>
-                <b>📊 Прогресс (%):</b> {stats.progress_percent}%
-              </p>
-            </>
-          )}
-
-          <p>
-            <b>✔ Всего выполнено:</b> {stats.total_completed}
-          </p>
-          <p>
-            <b>❌ Всего пропущено:</b> {stats.total_missed}
-          </p>
-          <p>
-            <b>⏳ В ожидании:</b> {stats.total_pending}
-          </p>
-
-          <br />
-
-          <h4>Последние 30 дней</h4>
-          <ul>
-            {Object.entries(stats.last_30_days).map(([date, status]) => (
-              <li key={date}>
-                {date}: {status}
-              </li>
-            ))}
-          </ul>
-
-          <h4>По неделям</h4>
-          <ul>
-            {stats.per_week.map((w) => (
-              <li key={w.week}>
-                {w.week}: ✔ {w.completed}, ❌ {w.missed}
-              </li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <p>Загрузка статистики...</p>
-      )}
-
-      <h3>📊 Визуальная статистика</h3>
-
-      {/* Прогресс бар */}
-      {stats.progress_percent !== null && (
-        <>
-          <h4>Прогресс к цели</h4>
-          <ProgressBar percent={stats.progress_percent} />
-        </>
-      )}
-
-      {/* Streak UI */}
-      <div style={{ marginTop: 20, padding: 10, border: "1px solid #ccc", borderRadius: 8 }}>
-        <h4>🔥 Streak</h4>
-        <p>
-          Текущий: <b>{stats.current_streak}</b>
-        </p>
-        <p>
-          Максимальный: <b>{stats.max_streak}</b>
-        </p>
+        <button onClick={toggleActive}>
+          {habit.is_active ? "🔴 Остановить" : "🟢 Запустить снова"}
+        </button>
       </div>
 
-      {/* Pie chart */}
-      <div style={{ marginTop: 20 }}>
-        <h4>Соотношение выполнено/пропущено</h4>
-        <CompletionPieChart
-          completed={stats.total_completed}
-          missed={stats.total_missed}
-          pending={stats.total_pending}
-        />
-      </div>
-
-      {/* Weekly bars */}
-      <div style={{ marginTop: 20 }}>
-        <h4>Статистика по неделям</h4>
-        <WeeklyBarChart data={stats.per_week} />
-      </div>
-
-      <h3>Последние инстансы</h3>
-      <ul>
-        {data.instances.map((inst) => (
-          <li key={inst.id}>
-            {inst.scheduled_datetime} — {inst.status}
-          </li>
-        ))}
-      </ul>
-
-      <Link to={`/habits/${habit.id}/instances`}>
-        <button>📋 История выполнения</button>
-      </Link>
-
-      <br />
-
-      <button onClick={toggleActive}>
-        {habit.is_active ? "🔴 Деактивировать" : "🟢 Активировать снова"}
-      </button>
-
-      <br />
-      <br />
-
-      <Link to={`/habits/${habit.id}/edit`}>
-        <button>✏ Редактировать</button>
-      </Link>
-
-      <br />
       <br />
 
       <Link to="/habits">
-        <button>← Назад к списку</button>
+        ← Назад к списку
       </Link>
     </div>
   );

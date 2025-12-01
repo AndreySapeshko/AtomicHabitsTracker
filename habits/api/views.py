@@ -4,6 +4,7 @@ from django.db.models.functions import TruncWeek
 from django.utils import timezone
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from habit_instances.models import HabitInstance
@@ -60,13 +61,26 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def perform_update(self, serializer):
+        habit = self.get_object()
+        if habit.user != self.request.user:
+            raise PermissionDenied("Вы не можете изменять чужую привычку")
+
+        instance = serializer.save()
+
+        # Чистим кеш
+        cache.delete(f"habit_details_{instance.id}")
+        cache.delete(f"habit_stats_{instance.id}")
+
+        return instance
+
     @action(detail=False, methods=["get"], url_path="public", url_name="public")
     def public_habits(self, request):
         """
         GET /api/habits/public/
         Публичные привычки (чужие).
         """
-        queryset = Habit.objects.filter(ё=True, is_active=True)
+        queryset = Habit.objects.filter(is_public=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -260,3 +274,35 @@ class HabitViewSet(viewsets.ModelViewSet):
                 current = 0
 
         return max(max_streak, current)
+
+    @action(detail=False, methods=["get"], url_path="instances/today")
+    def instances_today(self, request):
+        user = request.user
+        now = timezone.now()
+
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = now.replace(hour=23, minute=59, second=59)
+
+        qs = (
+            HabitInstance.objects.select_related("habit")
+            .filter(
+                habit__user=user,
+                scheduled_datetime__gte=start,
+                scheduled_datetime__lte=end,
+            )
+            .order_by("scheduled_datetime")
+        )
+
+        return Response(
+            [
+                {
+                    "id": inst.id,
+                    "scheduled_datetime": inst.scheduled_datetime,
+                    "status": inst.status,
+                    "habit": inst.habit_id,
+                    "action": inst.habit.action,
+                    "time": inst.scheduled_datetime.strftime("%H:%M"),
+                }
+                for inst in qs
+            ]
+        )
