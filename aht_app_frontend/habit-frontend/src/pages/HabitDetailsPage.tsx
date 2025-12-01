@@ -227,16 +227,6 @@ export default function HabitDetailsPage() {
         <WeeklyBarChart data={stats.per_week} />
       </div>
 
-      <div style={{ marginTop: 20, padding: 10, border: "1px solid #ddd", borderRadius: 8 }}>
-        <h3>🔥 Streak</h3>
-        <p>
-          <b>Текущий стрик:</b> {stats.current_streak} дней
-        </p>
-        <p>
-          <b>Максимальный стрик:</b> {stats.max_streak} дней
-        </p>
-      </div>
-
       <h3>Последние инстансы</h3>
       <ul>
         {data.instances.map((inst) => (

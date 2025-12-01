@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { NavBar } from "./components/NavBar";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -11,20 +12,7 @@ import HabitInstancesPage from "./pages/HabitInstancesPage";
 function App() {
   return (
     <BrowserRouter>
-      <div style={{ padding: 20 }}>
-        {/* НАВИГАЦИЯ */}
-        <nav style={{ marginBottom: 20 }}>
-          <Link to="/" style={{ marginRight: 10 }}>
-            Главная
-          </Link>
-          <Link to="/habits" style={{ marginRight: 10 }}>
-            Мои привычки
-          </Link>
-          <Link to="/login" style={{ marginRight: 10 }}>
-            Логин
-          </Link>
-          <Link to="/register">Регистрация</Link>
-        </nav>
+      <NavBar />
 
         <Routes>
           <Route
@@ -93,7 +81,6 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
         </Routes>
-      </div>
     </BrowserRouter>
   );
 }
