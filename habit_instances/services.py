@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
 
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 
 from habit_instances.models import HabitInstance, HabitInstanceStatus
 from habits.models import Habit
+
+User = get_user_model()
 
 
 def get_next_scheduled_datetime(habit: Habit) -> datetime:
@@ -115,3 +118,16 @@ def miss_instance(instance_id: int, telegram_chat_id: int):
 
     instance.mark_failed()
     return True
+
+
+def get_instances_for_today(user: User):
+    today = timezone.localdate()
+
+    instances = list(
+        HabitInstance.objects.filter(
+            habit__user=user, scheduled_datetime__date=today, status__in=["scheduled", "pending"]
+        )
+        .select_related("habit")
+        .order_by("scheduled_datetime")
+    )
+    return instances

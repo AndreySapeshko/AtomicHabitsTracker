@@ -57,3 +57,24 @@ class HabitInstance(models.Model):
     def mark_failed(self):
         self.status = HabitInstanceStatus.MISSED
         self.save()
+
+    def undo_completion(self):
+        """
+        Отменяет выполнение, если это возможно.
+        """
+        if self.status not in [
+            HabitInstanceStatus.COMPLETED,
+            HabitInstanceStatus.COMPLETED_LATE,
+        ]:
+            return False, "Невозможно отменить: инстанс не был выполнен."
+
+        # Дедлайн истёк?
+        now = timezone.now()
+        if now > self.confirm_deadline:
+            return False, "Невозможно отменить: дедлайн уже истёк."
+
+        # Возвращаем в pending
+        self.status = HabitInstanceStatus.PENDING
+        self.save()
+
+        return True, "Статус возвращён в ожидающие."
