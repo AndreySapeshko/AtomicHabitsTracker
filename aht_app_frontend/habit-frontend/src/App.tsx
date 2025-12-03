@@ -11,6 +11,7 @@ import HabitInstancesPage from "./pages/HabitInstancesPage";
 import HabitAnalyticsPage from "./pages/HabitAnalyticsPage";
 import PublicHabitsPage from "./pages/PublicHabitsPage";
 import HomePage from "./pages/HomePage";
+import ProfilePage from "./pages/ProfilePage";
 
 function App() {
   return (
@@ -18,14 +19,7 @@ function App() {
       <NavBar />
 
       <Routes>
-        <Route
-          path="/"
-          element={
-            <ProtectedRoute>
-              <HomePage/>
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/" element={<HomePage />} />
 
         <Route
           path="/habits"
@@ -86,6 +80,15 @@ function App() {
           element={
             <ProtectedRoute>
               <HabitAnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
             </ProtectedRoute>
           }
         />

@@ -19,6 +19,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 
+WEB_APP_URL = "https://myawesomehabits.app"
+
 # ---------------------------
 # Applications
 # ---------------------------

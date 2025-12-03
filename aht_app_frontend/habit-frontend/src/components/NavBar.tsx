@@ -1,74 +1,101 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { Button } from "./Button";
 
 export function NavBar() {
   const access = useAuthStore((s) => s.access);
   const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  if (!access) return null; // скрываем навбар для гостей
+  const isAuthPage =
+    location.pathname.startsWith("/login") ||
+    location.pathname.startsWith("/register");
+
+  const linkStyle = ({ isActive }: { isActive: boolean }) => ({
+    textDecoration: "none",
+    color: isActive ? "#111827" : "#4b5563",
+    fontWeight: isActive ? 600 : 500,
+    fontSize: 14,
+  });
 
   return (
     <nav
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 20,
-        padding: "10px 20px",
-        background: "#f6f6f6",
-        borderBottom: "1px solid #ddd",
+        background: "#ffffff",
+        borderBottom: "1px solid #e5e7eb",
+        padding: "8px 16px",
       }}
     >
-      <h3 style={{ margin: 0 }}>Habit Tracker</h3>
-
-      <NavLink
-        to="/"
-        style={({ isActive }) => ({
-          fontWeight: isActive ? "bold" : "normal",
-          textDecoration: "none",
-        })}
-      >
-        Главная
-      </NavLink>
-
-      <NavLink
-        to="/habits"
-        style={({ isActive }) => ({
-          fontWeight: isActive ? "bold" : "normal",
-          textDecoration: "none",
-        })}
-      >
-        Привычки
-      </NavLink>
-
-      <NavLink
-        to="/habits/public"
-        style={({ isActive }) => ({
-          fontWeight: isActive ? "bold" : "normal",
-          textDecoration: "none",
-        })}
-      >
-        Публичные
-      </NavLink>
-
-      <div style={{ flexGrow: 1 }} />
-
-      <button
-        onClick={() => {
-          logout();
-          navigate("/login");
-        }}
+      <div
         style={{
-          background: "#ff4d4d",
-          color: "white",
-          border: "none",
-          padding: "6px 12px",
-          borderRadius: 6,
-          cursor: "pointer",
+          maxWidth: 960,
+          margin: "0 auto",
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
         }}
       >
-        Выйти
-      </button>
+        <div
+          style={{ fontWeight: 700, fontSize: 16, cursor: "pointer" }}
+          onClick={() => navigate("/")}
+        >
+          Atomic Habits Tracker
+        </div>
+
+        {/* Линки слева */}
+        {access && (
+          <>
+            <NavLink to="/" style={linkStyle}>
+              Главная
+            </NavLink>
+            <NavLink to="/habits" style={linkStyle}>
+              Привычки
+            </NavLink>
+            <NavLink to="/habits/public" style={linkStyle}>
+              Публичные
+            </NavLink>
+            <NavLink to="/profile" style={linkStyle}>
+              Профиль
+            </NavLink>
+          </>
+        )}
+
+        <div style={{ flexGrow: 1 }} />
+
+        {/* Справа — в зависимости от авторизации */}
+        {!access && !isAuthPage && (
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => navigate("/login")}
+              style={{ fontSize: 13 }}
+            >
+              Войти
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => navigate("/register")}
+              style={{ fontSize: 13 }}
+            >
+              Регистрация
+            </Button>
+          </>
+        )}
+
+        {access && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
+            style={{ fontSize: 13 }}
+          >
+            Выйти
+          </Button>
+        )}
+      </div>
     </nav>
   );
 }

@@ -1,60 +1,85 @@
 import { Link } from "react-router-dom";
-import { Card } from "./Card";
 import type { Habit } from "../types/Habit";
+import { Card } from "./Card";
+import { Button } from "./Button";
 
-interface Props {
+interface HabitCardProps {
   habit: Habit;
+  showActions?: boolean;
 }
 
-export function HabitCard({ habit }: Props) {
-  return (
-    <Card>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h3>{habit.action}</h3>
+export function HabitCard({ habit, showActions = true }: HabitCardProps) {
+  const icon = habit.is_pleasant ? "💙" : "💛";
 
-        <span
+  return (
+    <Card
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100%",
+      }}
+    >
+      <div style={{ marginBottom: 8 }}>
+        <div
           style={{
-            padding: "4px 8px",
-            borderRadius: 6,
-            background: habit.is_active ? "#e0f7e9" : "#ffe4e4",
-            color: habit.is_active ? "#0a7d38" : "#c62828",
-            fontSize: 12,
-            height: 20,
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 8,
+            alignItems: "center",
           }}
         >
-          {habit.is_active ? "Активна" : "Неактивна"}
-        </span>
-      </div>
+          <h3 style={{ margin: 0, fontSize: 16 }}>
+            {icon} {habit.action}
+          </h3>
+          <span
+            style={{
+              padding: "2px 8px",
+              borderRadius: 999,
+              fontSize: 11,
+              background: habit.is_active ? "#dcfce7" : "#fee2e2",
+              color: habit.is_active ? "#166534" : "#b91c1c",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {habit.is_active ? "Активна" : "Неактивна"}
+          </span>
+        </div>
 
-      <p style={{ marginTop: 8, marginBottom: 8 }}>
-        <b>Место:</b> {habit.place}
-      </p>
-      <p style={{ marginTop: 0, marginBottom: 8 }}>
-        <b>Тип:</b> {habit.is_pleasant ? "Приятная" : "Полезная"}
-      </p>
-      <p style={{ marginTop: 0, marginBottom: 8 }}>
-        <b>Периодичность:</b> каждые {habit.periodicity_days} дней
-      </p>
-
-      {!habit.is_pleasant && (
-        <p style={{ marginTop: 0, marginBottom: 8 }}>
-          <b>Время:</b> {habit.time_of_day}
+        <p style={{ margin: "6px 0 4px", fontSize: 13, color: "#4b5563" }}>
+          {habit.place}
         </p>
-      )}
 
-      <div style={{ display: "flex", gap: 10, marginTop: 15 }}>
-        <Link to={`/habits/${habit.id}`}>
-          <button>Подробнее</button>
-        </Link>
+        {!habit.is_pleasant && (
+          <p style={{ margin: 0, fontSize: 12, color: "#6b7280" }}>
+            ⏰ {habit.time_of_day} • каждые {habit.periodicity_days} дн.
+          </p>
+        )}
 
-        <Link to={`/habits/${habit.id}/analytics`}>
-          <button>📊 Аналитика</button>
-        </Link>
-
-        <Link to={`/habits/${habit.id}/edit`}>
-          <button>✏ Редактировать</button>
-        </Link>
+        {habit.is_pleasant && (
+          <p style={{ margin: 0, fontSize: 12, color: "#6b7280" }}>Приятная привычка</p>
+        )}
       </div>
+
+      {showActions && (
+        <div
+          style={{
+            marginTop: "auto",
+            display: "flex",
+            gap: 8,
+            flexWrap: "wrap",
+          }}
+        >
+          <Link to={`/habits/${habit.id}`}>
+            <Button variant="secondary">Подробнее</Button>
+          </Link>
+          <Link to={`/habits/${habit.id}/analytics`}>
+            <Button variant="ghost">📊 Аналитика</Button>
+          </Link>
+          <Link to={`/habits/${habit.id}/edit`}>
+            <Button variant="ghost">✏ Редактировать</Button>
+          </Link>
+        </div>
+      )}
     </Card>
   );
 }

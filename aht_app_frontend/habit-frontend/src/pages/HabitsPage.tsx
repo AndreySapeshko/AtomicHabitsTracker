@@ -1,8 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
-import { Link } from "react-router-dom";
+import { Layout } from "../components/Layout";
+import { Button } from "../components/Button";
 import { HabitCard } from "../components/HabitCard";
+import { Link } from "react-router-dom";
 
 export default function HabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
@@ -12,7 +14,8 @@ export default function HabitsPage() {
     try {
       const res = await habitsApi.getHabits();
       setHabits(res.data);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setError("Не удалось загрузить привычки");
     }
   }, []);
@@ -23,39 +26,48 @@ export default function HabitsPage() {
     })();
   }, [loadHabits]);
 
-  if (error) return <div style={{ padding: 20 }}>{error}</div>;
-
   return (
-    <div style={{ padding: 20, maxWidth: 900, margin: "0 auto" }}>
+    <Layout>
       <div
         style={{
           display: "flex",
           justifyContent: "space-between",
-          marginBottom: 20,
+          alignItems: "center",
+          marginBottom: 16,
         }}
       >
-        <h2>Мои привычки</h2>
-
+        <h2 style={{ margin: 0 }}>Мои привычки</h2>
         <Link to="/habits/create">
-          <button style={{ padding: "8px 16px" }}>➕ Новая привычка</button>
+          <Button>➕ Новая привычка</Button>
         </Link>
       </div>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
       {habits.length === 0 ? (
         <p>У вас пока нет привычек. Создайте первую!</p>
       ) : (
         <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: 16,
-          }}
+          style={cardStyle}
         >
           {habits.map((h) => (
-            <HabitCard key={h.id} habit={h} />
+            <HabitCard key={h.id} habit={h} showActions/>
           ))}
         </div>
       )}
-    </div>
+    </Layout>
   );
 }
+
+const cardStyle: React.CSSProperties = {
+  background: "#fff",
+  border: "1px solid #ddd",
+  borderRadius: 10,
+  padding: 16,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  minHeight: 240,
+  boxShadow: "0 2px 6px rgba(0,0,0,0.06)",
+  boxSizing: "border-box",
+};

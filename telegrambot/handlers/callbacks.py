@@ -1,6 +1,6 @@
 import logging
 
-from aiogram import Router, types
+from aiogram import F, Router, types
 from aiogram.types import InlineKeyboardButton
 from asgiref.sync import sync_to_async
 
@@ -15,6 +15,7 @@ router = Router()
 
 @router.callback_query(lambda c: c.data and c.data.startswith("undo:"))
 async def undo_callback_handler(callback: types.CallbackQuery):
+    logger.info("Start undo_callback_handler")
     instance_id = callback.data.split(":")[1]
     chat_id = callback.message.chat.id
 
@@ -65,9 +66,11 @@ async def undo_callback_handler(callback: types.CallbackQuery):
     await callback.answer("Выполнение отменено.")
 
 
-@router.callback_query()
+@router.callback_query(F.data.startswith(("done:", "missed:")))
 async def callbacks(callback: types.CallbackQuery):
+    logger.info("Start callback")
     data = callback.data.split(":")
+    logger.info(f"callback.data: {data}")
 
     if len(data) != 2:
         return await callback.answer("Некорректная команда.")
