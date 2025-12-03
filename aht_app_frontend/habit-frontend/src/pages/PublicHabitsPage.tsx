@@ -1,57 +1,47 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
 import { Layout } from "../components/Layout";
-import { Button } from "../components/Button";
 import { HabitCard } from "../components/HabitCard";
-import { Link } from "react-router-dom";
 
-export default function HabitsPage() {
+export default function PublicHabitsPage() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const loadHabits = useCallback(async () => {
+  const loadPublic = useCallback(async () => {
     try {
-      const res = await habitsApi.getHabits();
+      const res = await habitsApi.publicHabits();
       setHabits(res.data);
     } catch (err) {
       console.error(err);
-      setError("Не удалось загрузить привычки");
+      setError("Не удалось загрузить публичные привычки");
     }
   }, []);
 
   useEffect(() => {
     (async () => {
-      await loadHabits();
+      await loadPublic();
     })();
-  }, [loadHabits]);
+  }, [loadPublic]);
 
   return (
     <Layout>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: 16,
-        }}
-      >
-        <h2 style={{ margin: 0 }}>Мои привычки</h2>
-        <Link to="/habits/create">
-          <Button>➕ Новая привычка</Button>
-        </Link>
-      </div>
+      <h2>Публичные привычки</h2>
+      <p style={{ marginBottom: 16, color: "#4b5563", fontSize: 14 }}>
+        Это приятные и полезные привычки других пользователей. Вы можете использовать их как идеи и
+        награды для своих полезных привычек.
+      </p>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {habits.length === 0 ? (
-        <p>У вас пока нет привычек. Создайте первую!</p>
+        <p>Пока нет публичных привычек.</p>
       ) : (
         <div
           style={cardStyle}
         >
           {habits.map((h) => (
-            <HabitCard key={h.id} habit={h} showActions/>
+            <HabitCard key={h.id} habit={h} showActions={false} />
           ))}
         </div>
       )}

@@ -8,6 +8,10 @@ export const habitsApi = {
     return apiClient.get<Habit[]>("/habits/");
   },
 
+  pleasant() {
+    return apiClient.get("/habits/", { params: { is_pleasant: true } });
+  },
+
   getHabit(id: number) {
     return apiClient.get<Habit>(`/habits/${id}/`);
   },
@@ -32,11 +36,19 @@ export const habitsApi = {
     return apiClient.get(`/habits/${habitId}/instances/`, { params });
   },
 
+  instancesForToday() {
+    return apiClient.get("/habits/instances/today/");
+  },
+
   stats(habitId: number) {
     return apiClient.get<HabitStats>(`/habits/${habitId}/stats/`);
   },
 
   getPleasantHabits() {
     return apiClient.get<Habit[]>("/habits/?is_pleasant=true");
+  },
+
+  publicHabits() {
+    return apiClient.get("/habits/public/");
   },
 };

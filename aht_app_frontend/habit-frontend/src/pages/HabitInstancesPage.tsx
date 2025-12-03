@@ -30,7 +30,6 @@ export default function HabitInstancesPage() {
     (async () => {
       await loadInstances()
     })();
-    ;
   }, [loadInstances]);
 
   return (

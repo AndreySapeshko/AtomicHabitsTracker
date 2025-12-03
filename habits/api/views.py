@@ -1,14 +1,15 @@
 from django.core.cache import cache
-from django.db.models import Count, Q
-from django.db.models.functions import TruncWeek
 from django.utils import timezone
 from rest_framework import permissions, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
 from habit_instances.models import HabitInstance
 from habits.api.serializers import HabitSerializer
 from habits.models import Habit
+from habits.services.details import get_habit_details
+from habits.services.stats import get_habit_stats
 
 
 class IsOwnerOrReadOnly(permissions.BasePermission):
@@ -60,54 +61,28 @@ class HabitViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
+    def perform_update(self, serializer):
+        habit = self.get_object()
+        if habit.user != self.request.user:
+            raise PermissionDenied("Вы не можете изменять чужую привычку")
+
+        instance = serializer.save()
+
+        # Чистим кеш
+        cache.delete(f"habit_details_{instance.id}")
+        cache.delete(f"habit_stats_{instance.id}")
+
+        return instance
+
     @action(detail=False, methods=["get"], url_path="public", url_name="public")
     def public_habits(self, request):
         """
         GET /api/habits/public/
         Публичные привычки (чужие).
         """
-        queryset = Habit.objects.filter(ё=True, is_active=True)
+        queryset = Habit.objects.filter(is_public=True)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-    @action(detail=True, methods=["get"])
-    def _build_details(self):
-        habit = self.get_object()
-
-        # --- История инстансов ---
-        instances = HabitInstance.objects.filter(habit=habit).order_by("-scheduled_datetime")
-
-        # Счётчики статусов
-        stats = instances.aggregate(
-            completed=Count("id", filter=Q(status="completed")),
-            missed=Count("id", filter=Q(status="missed")),
-            pending=Count("id", filter=Q(status__in=["scheduled", "pending"])),
-        )
-
-        # --- Стрик ---
-        streak = self._calculate_streak(habit)
-
-        # --- Прогресс: сколько осталось по лимиту ---
-        remaining = max(habit.repeat_limit - stats["completed"], 0)
-
-        return {
-            "habit": HabitSerializer(habit).data,
-            "progress": {
-                "completed": stats["completed"],
-                "missed": stats["missed"],
-                "pending": stats["pending"],
-                "remaining": remaining,
-                "streak": streak,
-            },
-            "instances": [
-                {
-                    "id": inst.id,
-                    "scheduled_datetime": inst.scheduled_datetime,
-                    "status": inst.status,
-                }
-                for inst in instances[:20]
-            ],
-        }
 
     @action(detail=True, methods=["get"])
     def details(self, request, pk=None):
@@ -115,28 +90,10 @@ class HabitViewSet(viewsets.ModelViewSet):
         data = cache.get(cache_key)
 
         if not data:
-            data = self._build_details()
+            data = get_habit_details(pk)
             cache.set(cache_key, data, 60)
 
         return Response(data)
-
-    # 🔥 Логика вычисления streak
-    def _calculate_streak(self, habit):
-        """
-        Стрик = количество последовательных выполнений,
-        начиная с последнего выполненного подряд без пропусков.
-        """
-        instances = HabitInstance.objects.filter(habit=habit).order_by("-scheduled_datetime")
-
-        streak = 0
-
-        for inst in instances:
-            if inst.status in ("completed", "completed_late"):
-                streak += 1
-            else:
-                break
-
-        return streak
 
     @action(detail=True, methods=["get"])
     def instances(self, request, pk=None):
@@ -174,89 +131,44 @@ class HabitViewSet(viewsets.ModelViewSet):
         )
 
     @action(detail=True, methods=["get"])
-    def _calculate_stats(self):
-        habit = self.get_object()
-
-        instances = HabitInstance.objects.filter(habit=habit).order_by("scheduled_datetime")
-
-        # Счётчики
-        counts = instances.aggregate(
-            total_completed=Count("id", filter=Q(status__in=["completed", "completed_late"])),
-            total_missed=Count("id", filter=Q(status__in=["missed", "fix_expired"])),
-            total_pending=Count("id", filter=Q(status__in=["scheduled", "pending"])),
-        )
-
-        # Стрики
-        current_streak = self._calculate_current_streak(instances)
-        max_streak = self._calculate_max_streak(instances)
-
-        # Прогресс (для полезных habits)
-        progress_percent = None
-        if not habit.is_pleasant and habit.repeat_limit:
-            progress_percent = round((counts["total_completed"] / habit.repeat_limit) * 100, 1)
-            progress_percent = min(progress_percent, 100)
-
-        # Последние 30 дней
-        today = timezone.now().date()
-        last30 = instances.filter(scheduled_datetime__date__gte=today - timezone.timedelta(days=30))
-
-        last_30_days = {inst.scheduled_datetime.date().isoformat(): inst.status for inst in last30}
-
-        # Статистика по неделям
-
-        per_week = (
-            HabitInstance.objects.filter(habit=habit)
-            .annotate(week=TruncWeek("scheduled_datetime"))
-            .values("week")
-            .annotate(
-                completed=Count("id", filter=Q(status="completed")),
-                missed=Count("id", filter=Q(status="missed")),
-            )
-            .order_by("-week")
-        )
-
-        return {
-            "habit_id": habit.id,
-            "total_completed": counts["total_completed"],
-            "total_missed": counts["total_missed"],
-            "total_pending": counts["total_pending"],
-            "current_streak": current_streak,
-            "max_streak": max_streak,
-            "limit": habit.repeat_limit,
-            "progress_percent": progress_percent,
-            "last_30_days": last_30_days,
-            "per_week": per_week,
-        }
-
-    @action(detail=True, methods=["get"])
     def stats(self, request, pk=None):
         cache_key = f"habit_stats_{pk}"
         data = cache.get(cache_key)
 
         if not data:
-            data = self._calculate_stats()
+            data = get_habit_stats(pk)
             cache.set(cache_key, data, timeout=60)  # 1 минута
 
         return Response(data)
 
-    def _calculate_current_streak(self, instances):
-        streak = 0
-        for inst in reversed(instances):
-            if inst.status in ["completed", "completed_late"]:
-                streak += 1
-            else:
-                break
-        return streak
+    @action(detail=False, methods=["get"], url_path="instances/today")
+    def instances_today(self, request):
+        user = request.user
+        now = timezone.now()
 
-    def _calculate_max_streak(self, instances):
-        max_streak = 0
-        current = 0
+        start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        end = now.replace(hour=23, minute=59, second=59)
 
-        for inst in instances:
-            if inst.status in ["completed", "completed_late"]:
-                current += 1
-            else:
-                max_streak = max(max_streak, current)
-                current = 0
+        qs = (
+            HabitInstance.objects.select_related("habit")
+            .filter(
+                habit__user=user,
+                scheduled_datetime__gte=start,
+                scheduled_datetime__lte=end,
+            )
+            .order_by("scheduled_datetime")
+        )
 
-        return max(max_streak, current)
+        return Response(
+            [
+                {
+                    "id": inst.id,
+                    "scheduled_datetime": inst.scheduled_datetime,
+                    "status": inst.status,
+                    "habit": inst.habit_id,
+                    "action": inst.habit.action,
+                    "time": inst.scheduled_datetime.strftime("%H:%M"),
+                }
+                for inst in qs
+            ]
+        )

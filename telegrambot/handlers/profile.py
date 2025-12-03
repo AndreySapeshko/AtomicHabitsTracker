@@ -1,16 +1,25 @@
+import logging
+
 from aiogram import Router, types
 from aiogram.filters import Command
 from asgiref.sync import sync_to_async
+from django.conf import settings
 from django.utils import timezone
 
 from habit_instances.models import HabitInstance
+from telegrambot.services.sender import sender
 from users.models import TelegramProfile
+
+logger = logging.getLogger("telegrambot")
+
+WEB_URL = settings.WEB_APP_URL
 
 router = Router()
 
 
 @router.message(Command("profile"))
 async def profile_handler(message: types.Message):
+    logger.info("Start profile_handler")
     chat_id = message.chat.id
 
     # 1. Проверяем привязку Telegram
@@ -43,9 +52,11 @@ async def profile_handler(message: types.Message):
     text = [
         "👤 *Ваш профиль*\n",
         f"*Email:* {user.email}",
+        f"<b>Telegram:</b> {profile.username or '—'}\n",
         "*Telegram:* привязан ✔️",
         "",
         "📌 *Привычки на сегодня:*",
+        f"\n🌐 Открыть приложение: {WEB_URL}",
     ]
 
     STATUS_ICONS = {
@@ -68,4 +79,4 @@ async def profile_handler(message: types.Message):
 
             text.append(f"{idx}. {habit} — {time} {icon} ({status})")
 
-    await message.answer("\n".join(text), parse_mode="Markdown")
+    await sender.send(message.chat.id, text)

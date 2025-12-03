@@ -1,17 +1,32 @@
 import logging
 
-from aiogram import Router, types
+from aiogram import Router
 from aiogram.filters import Command
+from aiogram.types import Message
+from django.conf import settings
 
-logger = logging.getLogger("celery")
+from telegrambot.services.sender import sender
+
+logger = logging.getLogger("telegrambot")
 
 router = Router()
 
+WEB_URL = settings.WEB_APP_URL
+
 
 @router.message(Command("start"))
-async def start_cmd(message: types.Message):
-    print("🔥 REAL CHAT ID:", message.chat.id)
-    await message.answer("Привет! Я бот для отслеживания привычек.\n" "Перейди в приложение и привяжи свой Telegram.")
+async def start_cmd(msg: Message):
+    logger.info("Start start_cmd")
+    text = (
+        "👋 Привет! Я — бот Habit Tracker.\n\n"
+        "Чтобы я мог отправлять напоминания:\n"
+        "1) Открой веб-приложение\n"
+        f"{WEB_URL}\n"
+        "2) В профиле нажми «Привязать Telegram»\n"
+        "3) Введи код здесь\n\n"
+        "❓ Команды: /help"
+    )
+    await sender.send(msg.chat.id, text)
 
 
 # @router.message()
