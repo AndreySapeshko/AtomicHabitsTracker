@@ -1,6 +1,4 @@
-# tests/habits/test_api.py
 import pytest
-from django.urls import reverse
 
 from habits.models import Habit
 from users.tests.factory import UserFactory

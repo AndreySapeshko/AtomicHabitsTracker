@@ -1,6 +1,6 @@
 import factory
 
-from habit_instances.models import HabitInstance, HabitInstanceStatus
+from habit_instances.models import HabitInstance
 
 
 class HabitInstanceFactory(factory.django.DjangoModelFactory):

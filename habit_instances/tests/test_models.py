@@ -1,6 +1,6 @@
 import pytest
 
-from habit_instances.models import HabitInstance, HabitInstanceStatus
+from habit_instances.models import HabitInstanceStatus
 
 from .factory import HabitInstanceFactory
 
