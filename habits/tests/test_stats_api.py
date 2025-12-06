@@ -1,12 +1,12 @@
-import pytest
-
-from django.utils import timezone
 from unittest.mock import patch
 
+import pytest
+from django.utils import timezone
+
 from habit_instances.models import HabitInstanceStatus
-from .factory import HabitFactory
 from habit_instances.tests.factory import HabitInstanceFactory
 
+from .factory import HabitFactory
 
 # Маршрут статистики одной привычки
 STATS_URL = "/api/habits/{id}/stats/"
@@ -35,7 +35,7 @@ def test_stats_streak(auth_client, user):
     for i in range(2):
         HabitInstanceFactory(
             habit=habit,
-            scheduled_datetime=timezone.now() - timezone.timedelta(days=5-i),
+            scheduled_datetime=timezone.now() - timezone.timedelta(days=5 - i),
             status=HabitInstanceStatus.MISSED,
         )
 
@@ -43,7 +43,7 @@ def test_stats_streak(auth_client, user):
     for i in range(3):
         HabitInstanceFactory(
             habit=habit,
-            scheduled_datetime=timezone.now() - timezone.timedelta(days=2-i),
+            scheduled_datetime=timezone.now() - timezone.timedelta(days=2 - i),
             status=HabitInstanceStatus.COMPLETED,
         )
 
@@ -74,12 +74,9 @@ def test_stats_empty(auth_client, user):
 def test_stats_status_distribution(auth_client, user):
     habit = HabitFactory(user=user)
 
-    HabitInstanceFactory(
-        habit=habit, status=HabitInstanceStatus.COMPLETED)
-    HabitInstanceFactory(
-        habit=habit, status=HabitInstanceStatus.COMPLETED_LATE)
-    HabitInstanceFactory(
-        habit=habit, status=HabitInstanceStatus.MISSED)
+    HabitInstanceFactory(habit=habit, status=HabitInstanceStatus.COMPLETED)
+    HabitInstanceFactory(habit=habit, status=HabitInstanceStatus.COMPLETED_LATE)
+    HabitInstanceFactory(habit=habit, status=HabitInstanceStatus.MISSED)
 
     response = auth_client.get(STATS_URL.format(id=habit.id))
     assert response.status_code == 200
@@ -96,10 +93,8 @@ def test_stats_weekly_chart(auth_client, user):
     monday = timezone.now().replace(hour=10, minute=0) - timezone.timedelta(days=timezone.now().weekday())
     tuesday = monday + timezone.timedelta(days=1)
 
-    HabitInstanceFactory(
-        habit=habit, scheduled_datetime=monday, status=HabitInstanceStatus.COMPLETED)
-    HabitInstanceFactory(
-        habit=habit, scheduled_datetime=tuesday, status=HabitInstanceStatus.MISSED)
+    HabitInstanceFactory(habit=habit, scheduled_datetime=monday, status=HabitInstanceStatus.COMPLETED)
+    HabitInstanceFactory(habit=habit, scheduled_datetime=tuesday, status=HabitInstanceStatus.MISSED)
 
     response = auth_client.get(STATS_URL.format(id=habit.id))
     assert response.status_code == 200

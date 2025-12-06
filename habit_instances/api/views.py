@@ -1,10 +1,10 @@
+from django.core.cache import cache
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import PermissionDenied
-from django.core.cache import cache
 
 from habit_instances.models import HabitInstance
 
@@ -46,7 +46,6 @@ class HabitInstanceViewSet(viewsets.ReadOnlyModelViewSet):
             return Response({"error": "Already processed"}, status=400)
         instance.mark_failed()
         return Response({"status": "missed"})
-
 
     def perform_update(self, serializer):
         instance = self.get_object()

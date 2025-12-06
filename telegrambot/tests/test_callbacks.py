@@ -3,10 +3,10 @@ from datetime import timedelta
 from unittest.mock import AsyncMock
 
 import pytest
-from aiogram.types import Update, CallbackQuery, User, Chat, Message
+from aiogram import Dispatcher
+from aiogram.types import CallbackQuery, Chat, Message, Update, User
 from asgiref.sync import sync_to_async
 from django.utils import timezone
-from aiogram import Dispatcher
 
 from habit_instances.models import HabitInstanceStatus
 from habit_instances.tests.factory import HabitInstanceFactory
@@ -26,9 +26,7 @@ async def test_undo_callback_habit(bot, fake_callback_sender, monkeypatch):
     profile = await sync_to_async(ProfileFactory)(user=user)
     habit = await sync_to_async(HabitFactory)(user=user, action="test callback")
     inst = await sync_to_async(HabitInstanceFactory)(
-        habit=habit,
-        status=HabitInstanceStatus.COMPLETED,
-        confirm_deadline=timezone.now() + timedelta(days=1)
+        habit=habit, status=HabitInstanceStatus.COMPLETED, confirm_deadline=timezone.now() + timedelta(days=1)
     )
 
     monkeypatch.setattr(Message, "edit_text", AsyncMock())
@@ -42,9 +40,9 @@ async def test_undo_callback_habit(bot, fake_callback_sender, monkeypatch):
             date=timezone.now(),
             chat=Chat(id=profile.chat_id, type="private"),
             from_user=User(id=user.id, is_bot=False, first_name="Tester"),
-            text="test callback"
+            text="test callback",
         ),
-        data=f"undo:{inst.id}"
+        data=f"undo:{inst.id}",
     )
 
     monkeypatch.setattr(CallbackQuery, "answer", AsyncMock())
@@ -69,9 +67,7 @@ async def test_callbacks(bot, fake_callback_sender, monkeypatch):
     profile = await sync_to_async(ProfileFactory)(user=user)
     habit = await sync_to_async(HabitFactory)(user=user, action="test callback")
     inst = await sync_to_async(HabitInstanceFactory)(
-        habit=habit,
-        status=HabitInstanceStatus.SCHEDULED,
-        fix_deadline=timezone.now() + timedelta(days=1)
+        habit=habit, status=HabitInstanceStatus.SCHEDULED, fix_deadline=timezone.now() + timedelta(days=1)
     )
 
     monkeypatch.setattr(Message, "edit_text", AsyncMock())
@@ -85,9 +81,9 @@ async def test_callbacks(bot, fake_callback_sender, monkeypatch):
             date=timezone.now(),
             chat=Chat(id=profile.chat_id, type="private"),
             from_user=User(id=user.id, is_bot=False, first_name="Tester"),
-            text="test callback"
+            text="test callback",
         ),
-        data=f"done:{inst.id}"
+        data=f"done:{inst.id}",
     )
 
     monkeypatch.setattr(CallbackQuery, "answer", AsyncMock())

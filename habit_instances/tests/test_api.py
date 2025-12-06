@@ -1,9 +1,8 @@
-# tests/habits/test_instances_api.py
 import pytest
 from django.utils import timezone
 
-from habit_instances.models import HabitInstanceStatus
 from habits.tests.factory import HabitFactory
+
 from .factory import HabitInstanceFactory
 
 # INSTANCES_URL = f"/api/habits/{id}/instances/"

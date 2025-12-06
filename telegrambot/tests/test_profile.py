@@ -1,13 +1,12 @@
 import pytest
-
-from aiogram.types import Update, Message, User, Chat
-from asgiref.sync import sync_to_async, async_to_sync
+from aiogram.types import Chat, Message, Update, User
+from asgiref.sync import sync_to_async
 from django.utils import timezone
 
 from telegrambot.handlers.profile import router as profile_router
-from users.model_files.profile import TelegramProfile
-from .factory import ProfileFactory
 from users.tests.factory import UserFactory
+
+from .factory import ProfileFactory
 
 
 @pytest.mark.asyncio
@@ -26,13 +25,9 @@ async def test_profile(dp, bot, fake_profile_sender):
             message_id=202,
             date=timezone.now(),
             chat=Chat(id=profile.chat_id, type="private"),
-            from_user=User(
-                id=profile.chat_id,
-                is_bot=False,
-                first_name="Tester"
-            ),
+            from_user=User(id=profile.chat_id, is_bot=False, first_name="Tester"),
             text="/profile",
-        )
+        ),
     )
 
     await dp.feed_update(bot, update)
@@ -49,13 +44,9 @@ async def test_profile(dp, bot, fake_profile_sender):
             message_id=303,
             date=timezone.now(),
             chat=Chat(id=999, type="private"),
-            from_user=User(
-                id=999,
-                is_bot=False,
-                first_name="Tester"
-            ),
+            from_user=User(id=999, is_bot=False, first_name="Tester"),
             text="/profile",
-        )
+        ),
     )
 
     await dp.feed_update(bot, update)

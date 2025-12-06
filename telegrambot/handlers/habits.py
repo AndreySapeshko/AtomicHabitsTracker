@@ -39,8 +39,7 @@ async def habits_handler(message: types.Message):
 
     if not habits:
         await sender.send(
-            message.chat.id,
-            f"У вас пока нет привычек.\nДобавьте их в веб-версии.\n🌐 Открыть приложение: {WEB_URL}"
+            message.chat.id, f"У вас пока нет привычек.\nДобавьте их в веб-версии.\n🌐 Открыть приложение: {WEB_URL}"
         )
         return
 
@@ -80,10 +79,7 @@ async def habit_stats_cmd(msg: types.Message):
     habit_id = int(msg.text.split("_")[1])
     stats = await sync_to_async(get_habit_stats)(habit_id)
     if not stats:
-        await sender.send(
-            msg.chat.id,
-            "Привычка не найдена"
-        )
+        await sender.send(msg.chat.id, "Привычка не найдена")
         return
 
     text = (

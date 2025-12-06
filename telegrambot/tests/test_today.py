@@ -1,15 +1,15 @@
-import pytest
-
 from datetime import timedelta
-from aiogram.types import Update, Message, User, Chat
+
+import pytest
+from aiogram.types import Chat, Message, Update, User
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 
+from habit_instances.tests.factory import HabitInstanceFactory
 from habits.tests.factory import HabitFactory
 from telegrambot.handlers.today import router as today_router
 from telegrambot.tests.factory import ProfileFactory
 from users.tests.factory import UserFactory
-from habit_instances.tests.factory import HabitInstanceFactory
 
 
 @pytest.mark.asyncio
@@ -20,10 +20,7 @@ async def test_today(dp, bot, fake_today_sender):
     profile = await sync_to_async(ProfileFactory)(user=user)
     habit = await sync_to_async(HabitFactory)(user=user)
     await sync_to_async(HabitInstanceFactory.create_batch)(2, habit=habit, scheduled_datetime=timezone.now())
-    await sync_to_async(HabitInstanceFactory)(
-        habit=habit,
-        scheduled_datetime=timezone.now() + timedelta(days=2)
-    )
+    await sync_to_async(HabitInstanceFactory)(habit=habit, scheduled_datetime=timezone.now() + timedelta(days=2))
 
     update = Update(
         update_id=44,

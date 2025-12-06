@@ -2,18 +2,18 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
-from aiogram.types import Update, Message, User, Chat
+from aiogram import Dispatcher
+from aiogram.types import Chat, Message, Update, User
 from asgiref.sync import sync_to_async
 from django.utils import timezone
 
 from telegrambot.handlers.bind import router as bind_router
-from aiogram import Dispatcher
-
 from telegrambot.tests.factory import ProfileFactory
 from users.tests.factory import UserFactory
 
 dp = Dispatcher()
 dp.include_router(bind_router)
+
 
 @pytest.mark.asyncio
 @pytest.mark.django_db
@@ -37,7 +37,7 @@ async def test_bind_flow(bot, monkeypatch):
             date=timezone.now(),
             chat=Chat(id=profile.chat_id, type="private"),
             from_user=User(id=user.id, is_bot=False, first_name="Tester", username="Tester"),
-            text="bind758"
+            text="bind758",
         ),
     )
 
@@ -61,13 +61,9 @@ async def test_bind_cmd(bot, fake_bind_sender, user, monkeypatch):
             message_id=808,
             date=timezone.now(),
             chat=Chat(id=800, type="private"),
-            from_user=User(
-                id=800,
-                is_bot=False,
-                first_name="Tester"
-            ),
+            from_user=User(id=800, is_bot=False, first_name="Tester"),
             text="/bind",
-        )
+        ),
     )
 
     await dp.feed_update(bot, update)
@@ -93,7 +89,7 @@ async def test_unbind_handler(bot, monkeypatch):
             date=timezone.now(),
             chat=Chat(id=profile.chat_id, type="private"),
             from_user=User(id=user.id, is_bot=False, first_name="Tester", username="Tester"),
-            text="/unbind"
+            text="/unbind",
         ),
     )
 

@@ -1,6 +1,8 @@
 # tests/telegram/test_sender.py
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
+
 from telegrambot.services.sender import TelegramSender
 
 

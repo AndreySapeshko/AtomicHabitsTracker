@@ -1,19 +1,20 @@
 import pytest
-
-from aiogram.types import Update, Message, User, Chat
+from aiogram import Dispatcher
+from aiogram.types import Chat, Message, Update, User
 from asgiref.sync import sync_to_async
 from django.utils import timezone
-from aiogram import Dispatcher
 
 from habit_instances.models import HabitInstanceStatus
 from habit_instances.tests.factory import HabitInstanceFactory
-from telegrambot.handlers.habits import router as habits_router
 from habits.tests.factory import HabitFactory
-from .factory import ProfileFactory
+from telegrambot.handlers.habits import router as habits_router
 from users.tests.factory import UserFactory
+
+from .factory import ProfileFactory
 
 dp = Dispatcher()
 dp.include_router(habits_router)
+
 
 @pytest.mark.asyncio
 @pytest.mark.django_db
@@ -50,14 +51,8 @@ async def test_stats(bot, fake_habits_sender):
     user = await sync_to_async(UserFactory)()
     profile = await sync_to_async(ProfileFactory)(user=user)
     habit = await sync_to_async(HabitFactory)(user=user)
-    await sync_to_async(HabitInstanceFactory.create_batch)(
-        3, habit=habit,
-        status=HabitInstanceStatus.COMPLETED
-    )
-    await sync_to_async(HabitInstanceFactory.create_batch)(
-        2, habit=habit,
-        status=HabitInstanceStatus.MISSED
-    )
+    await sync_to_async(HabitInstanceFactory.create_batch)(3, habit=habit, status=HabitInstanceStatus.COMPLETED)
+    await sync_to_async(HabitInstanceFactory.create_batch)(2, habit=habit, status=HabitInstanceStatus.MISSED)
 
     update = Update(
         update_id=44,

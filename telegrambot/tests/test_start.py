@@ -1,8 +1,5 @@
-import datetime
-
 import pytest
-
-from aiogram.types import Update, Message, User, Chat
+from aiogram.types import Chat, Message, Update, User
 from django.utils import timezone
 
 from telegrambot.handlers.basic import router as basic_router
@@ -18,13 +15,9 @@ async def test_start(dp, bot, fake_sender, user, monkeypatch):
             message_id=101,
             date=timezone.now(),
             chat=Chat(id=500, type="private"),
-            from_user=User(
-                id=500,
-                is_bot=False,
-                first_name="Tester"
-            ),
+            from_user=User(id=500, is_bot=False, first_name="Tester"),
             text="/start",
-        )
+        ),
     )
 
     await dp.feed_update(bot, update)

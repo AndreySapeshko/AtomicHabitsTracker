@@ -1,7 +1,6 @@
 import pytest
 
 from .factory import HabitFactory
-from users.tests.factory import UserFactory
 
 PUBLIC_URL = "/api/habits/public/"
 

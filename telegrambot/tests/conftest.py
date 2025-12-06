@@ -1,12 +1,10 @@
 # tests/telegram/conftest.py
-import pytest
 from unittest.mock import AsyncMock
-from aiogram import Dispatcher
-from aiogram import Bot
+
+import pytest
+from aiogram import Bot, Dispatcher
 
 from users.tests.factory import UserFactory
-from habits.tests.factory import HabitFactory
-from habit_instances.tests.factory import HabitInstanceFactory
 
 
 @pytest.fixture
@@ -35,7 +33,7 @@ def fake_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.handlers.basic.sender", fake)
+    monkeypatch.setattr("telegrambot.handlers.basic.sender", fake)
 
     return fake
 
@@ -50,7 +48,7 @@ def fake_bind_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.handlers.bind.sender", fake)
+    monkeypatch.setattr("telegrambot.handlers.bind.sender", fake)
 
     return fake
 
@@ -65,7 +63,7 @@ def fake_profile_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.handlers.profile.sender", fake)
+    monkeypatch.setattr("telegrambot.handlers.profile.sender", fake)
 
     return fake
 
@@ -80,7 +78,7 @@ def fake_habits_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.handlers.habits.sender", fake)
+    monkeypatch.setattr("telegrambot.handlers.habits.sender", fake)
 
     return fake
 
@@ -95,7 +93,7 @@ def fake_today_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.handlers.today.sender", fake)
+    monkeypatch.setattr("telegrambot.handlers.today.sender", fake)
 
     return fake
 
@@ -110,7 +108,7 @@ def fake_callback_sender(monkeypatch):
     fake.send_photo = AsyncMock()
 
     # monkeypatch your import path (adjust to your project layout)
-    monkeypatch.setattr(f"telegrambot.services.sender.sender", fake)
+    monkeypatch.setattr("telegrambot.services.sender.sender", fake)
 
     return fake
 

@@ -30,7 +30,7 @@ async def profile_handler(message: types.Message):
     except TelegramProfile.DoesNotExist:
         await sender.send(
             message.chat.id,
-            "❗ Ваш Telegram не привязан к аккаунту.\n" "Перейдите в личный кабинет и создайте код привязки."
+            "❗ Ваш Telegram не привязан к аккаунту.\n" "Перейдите в личный кабинет и создайте код привязки.",
         )
         return
 

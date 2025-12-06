@@ -7,8 +7,8 @@ from django.conf import settings
 from django.utils import timezone
 
 from habit_instances.models import HabitInstance, HabitInstanceStatus
-from users.models import TelegramProfile
 from telegrambot.services.sender import sender
+from users.models import TelegramProfile
 
 logger = logging.getLogger("telegrambot")
 
