@@ -20,5 +20,13 @@ class TelegramSender:
             ]
         )
 
+    def instance_status_keyboard(self, instance_id: int):
+        return InlineKeyboardMarkup(
+            inline_keyboard=[
+                [InlineKeyboardButton(text="✔️ Выполнено", callback_data=f"done:{instance_id}")],
+                [InlineKeyboardButton(text="❌ Не успел", callback_data=f"missed:{instance_id}")],
+            ]
+        )
+
 
 sender = TelegramSender(bot)

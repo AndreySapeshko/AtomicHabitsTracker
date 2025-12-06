@@ -21,14 +21,15 @@ router = Router()
 async def profile_handler(message: types.Message):
     logger.info("Start profile_handler")
     chat_id = message.chat.id
-
+    logger.info(f"chat_id: {chat_id}")
     # 1. Проверяем привязку Telegram
     try:
         profile = await sync_to_async(
             lambda: TelegramProfile.objects.select_related("user").get(chat_id=chat_id, is_active=True)
         )()
     except TelegramProfile.DoesNotExist:
-        await message.answer(
+        await sender.send(
+            message.chat.id,
             "❗ Ваш Telegram не привязан к аккаунту.\n" "Перейдите в личный кабинет и создайте код привязки."
         )
         return
@@ -50,12 +51,12 @@ async def profile_handler(message: types.Message):
 
     # 3. Строим текст ответа
     text = [
-        "👤 *Ваш профиль*\n",
-        f"*Email:* {user.email}",
+        "👤 <b>Ваш профиль</b>\n",
+        f"</b>Email:</b> {user.email}",
         f"<b>Telegram:</b> {profile.username or '—'}\n",
-        "*Telegram:* привязан ✔️",
+        "<b>Telegram:</b> привязан ✔️",
         "",
-        "📌 *Привычки на сегодня:*",
+        "📌 <b>Привычки на сегодня:</b>",
         f"\n🌐 Открыть приложение: {WEB_URL}",
     ]
 
@@ -79,4 +80,5 @@ async def profile_handler(message: types.Message):
 
             text.append(f"{idx}. {habit} — {time} {icon} ({status})")
 
-    await sender.send(message.chat.id, text)
+    text_line = "\n".join(text)
+    await sender.send(message.chat.id, text_line)
