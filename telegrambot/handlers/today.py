@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from habit_instances.models import HabitInstance, HabitInstanceStatus
+from telegrambot.services.sender import sender
 from users.models import TelegramProfile
 
 logger = logging.getLogger("telegrambot")
@@ -26,7 +27,7 @@ async def today_handler(message: types.Message):
             lambda: TelegramProfile.objects.select_related("user").get(chat_id=chat_id, is_active=True)
         )()
     except TelegramProfile.DoesNotExist:
-        await message.answer("❗ Telegram не привязан. Используйте /profile.")
+        await sender.send(chat_id, "❗ Telegram не привязан. Используйте /profile.")
         return
 
     today = timezone.localdate()
@@ -72,6 +73,6 @@ async def today_handler(message: types.Message):
         status = inst.status.replace("_", " ")
         icon = STATUS_ICONS.get(inst.status, "")
         lines.append(f"{i}. {inst.habit.action} — {t} {icon} ({status})")
-        text = "\n".join(lines) + f"\n🌐 Полная статистика здесь: {WEB_URL}"
+    text = "\n".join(lines) + f"\n🌐 Полная статистика здесь: {WEB_URL}"
 
-    await message.answer(text, parse_mode="Markdown")
+    await sender.send(chat_id, text)

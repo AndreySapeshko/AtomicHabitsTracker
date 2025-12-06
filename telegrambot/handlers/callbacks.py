@@ -25,6 +25,7 @@ async def undo_callback_handler(callback: types.CallbackQuery):
             lambda: TelegramProfile.objects.select_related("user").get(chat_id=chat_id, is_active=True)
         )()
     except TelegramProfile.DoesNotExist:
+        logger.info("Telegram не привязан.")
         await callback.answer("Telegram не привязан.", show_alert=True)
         return
 
@@ -56,13 +57,13 @@ async def undo_callback_handler(callback: types.CallbackQuery):
     # Возвращаем исходную пару кнопок: Выполнено / Не успел
     buttons = [
         [
-            types.InlineKeyboardButton(text="✔️ Выполнено", callback_data=f"done:{instance.id}"),
-            types.InlineKeyboardButton(text="❌ Не успел", callback_data=f"missed:{instance.id}"),
+            InlineKeyboardButton(text="✔️ Выполнено", callback_data=f"done:{instance.id}"),
+            InlineKeyboardButton(text="❌ Не успел", callback_data=f"missed:{instance.id}"),
         ]
     ]
 
     await callback.message.edit_text(text, reply_markup=types.InlineKeyboardMarkup(inline_keyboard=buttons))
-
+    logger.info("Отработал callback.message.edit_text")
     await callback.answer("Выполнение отменено.")
 
 
@@ -70,7 +71,6 @@ async def undo_callback_handler(callback: types.CallbackQuery):
 async def callbacks(callback: types.CallbackQuery):
     logger.info("Start callback")
     data = callback.data.split(":")
-    logger.info(f"callback.data: {data}")
 
     if len(data) != 2:
         return await callback.answer("Некорректная команда.")
@@ -89,7 +89,8 @@ async def callbacks(callback: types.CallbackQuery):
         ok = await sync_to_async(complete_instance)(instance_id, user_id)
         if ok:
             new_text = original_text + "\n\nОтлично! Привычка отмечена как выполненная 👍"
-            return await callback.message.edit_text(new_text, reply_markup=markup)
+            await callback.message.edit_text(new_text, reply_markup=markup)
+            return await callback.answer("Привычка выполнена.")
         else:
             return await callback.answer("Нельзя выполнить эту привычку.", show_alert=True)
 
@@ -97,7 +98,8 @@ async def callbacks(callback: types.CallbackQuery):
         ok = await sync_to_async(miss_instance)(instance_id, user_id)
         if ok:
             new_text = original_text + "\n\nЗаписал. Привычка пропущена ⛔"
-            return await callback.message.edit_text(new_text, reply_markup=None)
+            await callback.message.edit_text(new_text, reply_markup=None)
+            return await callback.answer("Привычка пропущена.")
         else:
             return await callback.answer("Нельзя изменить статус.", show_alert=True)
     return None

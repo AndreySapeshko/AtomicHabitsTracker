@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timedelta
 
 from django.contrib.auth import get_user_model
@@ -5,6 +6,8 @@ from django.utils import timezone
 
 from habit_instances.models import HabitInstance, HabitInstanceStatus
 from habits.models import Habit
+
+logger = logging.getLogger("habit_instances")
 
 User = get_user_model()
 
