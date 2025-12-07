@@ -4,6 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
+TELEGRAM_BIND_URL = "https://myawesomehabits.app/api/telegram/bind/"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -55,5 +57,3 @@ LOGGING["handlers"]["file"] = {
     "filename": env("DJANGO_LOG_FILE", default="/app/logs/django.log"),
 }
 LOGGING["root"]["handlers"] = ["file"]
-
-print("✅ DJANGO SETTINGS: PROD")

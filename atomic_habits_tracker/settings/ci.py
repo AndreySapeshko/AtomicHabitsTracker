@@ -18,6 +18,7 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 USE_TELEGRAM_BOT = False
 TELEGRAM_BOT_TOKEN = "ci-dummy-token"
+TELEGRAM_BIND_URL = "http://testserver/api/telegram/bind/"
 USE_REDIS = False
 
 CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
