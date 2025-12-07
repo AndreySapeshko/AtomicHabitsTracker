@@ -1,7 +1,7 @@
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from telegrambot.bot import bot
+from telegrambot.bot import get_bot
 
 
 class TelegramSender:
@@ -29,4 +29,4 @@ class TelegramSender:
         )
 
 
-sender = TelegramSender(bot)
+sender = get_bot()
