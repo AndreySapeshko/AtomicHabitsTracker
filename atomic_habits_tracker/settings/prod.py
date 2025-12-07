@@ -55,3 +55,5 @@ LOGGING["handlers"]["file"] = {
     "filename": env("DJANGO_LOG_FILE", default="/app/logs/django.log"),
 }
 LOGGING["root"]["handlers"] = ["file"]
+
+print("✅ DJANGO SETTINGS: PROD")

@@ -25,16 +25,24 @@ def json_to_markup(keyboard: dict):
     return markup
 
 
+def get_bot():
+    if not settings.TELEGRAM_BOT_TOKEN:
+        logger.warning("⚠️ TELEGRAM_BOT_TOKEN is not set — bot is disabled")
+        return None
+
+    return Bot(settings.TELEGRAM_BOT_TOKEN)
+
+
 async def redis_listener(bot: Bot):
-    """
-    Separate coroutine that listens to Redis for outgoing commands.
-    """
+    if not getattr(settings, "USE_REDIS", True):
+        logger.info("⚠️ Redis is disabled — redis_listener will not start")
+        return
+
     r = aioredis.from_url("redis://localhost/0")
     logger.info("🚀 Start redis_listener")
-    while True:
-        # Blocking wait for a new command
-        raw = await r.brpop("telegram:out")
 
+    while True:
+        raw = await r.brpop("telegram:out")
         _, data = raw
 
         try:
@@ -52,10 +60,16 @@ async def redis_listener(bot: Bot):
 
 async def main():
     setup_routers()
-    bot = Bot(settings.TELEGRAM_BOT_TOKEN)
+
+    bot = get_bot()
+
+    # ✅ В CI бот просто не запускается
+    if bot is None:
+        logger.info("⚠️ Bot is disabled (CI or no token) — exiting")
+        return
+
     logger.info("🚀 Telegram bot started")
 
-    # run polling + queue listener concurrently
     try:
         await asyncio.gather(
             dp.start_polling(bot),

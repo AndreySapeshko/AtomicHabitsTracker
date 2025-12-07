@@ -39,3 +39,5 @@ TELEGRAM_BIND_URL = "http://127.0.0.1:8000/api/telegram/bind/"
 # CELERY_WORKER_LOG_FILE = None  # Отключаем файловые логи Celery
 # CELERY_WORKER_REDIRECT_STDOUTS = False  # Не перенаправлять stdout
 # CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # Не перехватывать root logger
+
+print("✅ DJANGO SETTINGS: DEV")
