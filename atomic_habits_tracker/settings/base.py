@@ -269,7 +269,4 @@ LOGGING = {
 
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default=None)
 
-TELEGRAM_BIND_URL = env(
-    "TELEGRAM_BIND_URL",
-    default="http://testserver/api/telegram/bind/"
-)
+TELEGRAM_BIND_URL = env("TELEGRAM_BIND_URL", default="http://testserver/api/telegram/bind/")

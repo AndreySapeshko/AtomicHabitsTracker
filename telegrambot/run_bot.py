@@ -6,8 +6,8 @@ import redis.asyncio as aioredis
 from aiogram import Bot
 from django.conf import settings
 
-from telegrambot.dispatcher import dp, setup_routers
 from telegrambot.bot import get_bot
+from telegrambot.dispatcher import dp, setup_routers
 
 logger = logging.getLogger("telegrambot")
 
