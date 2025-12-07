@@ -41,3 +41,4 @@ TELEGRAM_BIND_URL = "http://127.0.0.1:8000/api/telegram/bind/"
 # CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # Не перехватывать root logger
 
 print("✅ DJANGO SETTINGS: DEV")
+raise RuntimeError("🔥 DEV SETTINGS LOADED")
