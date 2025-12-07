@@ -7,6 +7,7 @@ from aiogram import Bot
 from django.conf import settings
 
 from telegrambot.dispatcher import dp, setup_routers
+from telegrambot.bot import get_bot
 
 logger = logging.getLogger("telegrambot")
 
@@ -23,14 +24,6 @@ def json_to_markup(keyboard: dict):
 
         markup = InlineKeyboardMarkup(inline_keyboard=buttons)
     return markup
-
-
-def get_bot():
-    if not settings.TELEGRAM_BOT_TOKEN:
-        logger.warning("⚠️ TELEGRAM_BOT_TOKEN is not set — bot is disabled")
-        return None
-
-    return Bot(settings.TELEGRAM_BOT_TOKEN)
 
 
 async def redis_listener(bot: Bot):

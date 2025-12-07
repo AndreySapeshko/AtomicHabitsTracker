@@ -16,6 +16,7 @@ CELERY_BROKER_URL = "memory://"
 CELERY_RESULT_BACKEND = "cache+memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 
+USE_TELEGRAM_BOT = False
 TELEGRAM_BOT_TOKEN = "ci-dummy-token"
 USE_REDIS = False
 
