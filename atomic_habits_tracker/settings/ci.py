@@ -24,3 +24,5 @@ CACHES = {
 
 # Disable strong password validators to speed CI
 AUTH_PASSWORD_VALIDATORS = []
+
+TELEGRAM_BOT_TOKEN = "ci-dummy-token"

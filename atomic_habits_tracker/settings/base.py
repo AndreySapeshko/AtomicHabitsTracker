@@ -126,18 +126,17 @@ REST_FRAMEWORK = {
 # ---------------------------
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Atomic Habits Tracker API',
-    'DESCRIPTION': 'API для трекера привычек',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
-
-    'SECURITY': [{'BearerAuth': []}],
-    'COMPONENT_SPLIT_REQUEST': True,
-    'SECURITY_DEFINITIONS': {
-        'BearerAuth': {
-            'type': 'http',
-            'scheme': 'bearer',
-            'bearerFormat': 'JWT',
+    "TITLE": "Atomic Habits Tracker API",
+    "DESCRIPTION": "API для трекера привычек",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SECURITY": [{"BearerAuth": []}],
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SECURITY_DEFINITIONS": {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
         }
     },
 }

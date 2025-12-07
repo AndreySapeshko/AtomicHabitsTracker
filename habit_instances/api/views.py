@@ -33,7 +33,7 @@ class HabitInstanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=["post"], detail=True)
     def mark_complete(self, request, pk=None):
-        """ Устанавливает инстансу статус "completed" """
+        """Устанавливает инстансу статус "completed" """
 
         instance = self.get_object()
         if instance.status != HabitInstance.Status.SCHEDULED and instance.status != HabitInstance.Status.PENDING:
@@ -43,7 +43,7 @@ class HabitInstanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=["post"], detail=True)
     def mark_missed(self, request, pk=None):
-        """ Устанавливает инстансу статус "missed" """
+        """Устанавливает инстансу статус "missed" """
 
         instance = self.get_object()
         if instance.status != HabitInstance.Status.SCHEDULED and instance.status != HabitInstance.Status.PENDING:
