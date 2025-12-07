@@ -16,5 +16,11 @@ CELERY_BROKER_URL = "memory://"
 CELERY_RESULT_BACKEND = "cache+memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}
+
 # Disable strong password validators to speed CI
 AUTH_PASSWORD_VALIDATORS = []

@@ -72,7 +72,7 @@ def get_habit_stats(habit_id):
         .annotate(week=TruncWeek("scheduled_datetime"))
         .values("week")
         .annotate(
-            completed=Count("id", filter=Q(status="completed")),
+            completed=Count("id", filter=Q(status__in=["completed", "completed_late"])),
             missed=Count("id", filter=Q(status="missed")),
         )
         .order_by("-week")
