@@ -75,4 +75,6 @@ jobs:
         run: poetry run python manage.py migrate
 
       - name: Run tests
-        run: poetry run pytest --verbosity=2
+        run: |
+          export DJANGO_SETTINGS_MODULE=atomic_habits_tracker.settings.ci
+          poetry run pytest --verbosity=2

@@ -31,11 +31,14 @@ def _calculate_max_streak(instances):
 
 
 def get_habit_stats(habit_id):
-    habit = (
-        Habit.objects.filter(id=habit_id)
-        .prefetch_related(Prefetch("instances", queryset=HabitInstance.objects.order_by("scheduled_datetime")))
-        .first()
-    )
+    try:
+        habit = (
+            Habit.objects.filter(id=habit_id)
+            .prefetch_related(Prefetch("instances", queryset=HabitInstance.objects.order_by("scheduled_datetime")))
+            .first()
+        )
+    except Habit.DoesNotExist:
+        return None
 
     instances = habit.instances.all() if habit else []
 
@@ -69,7 +72,7 @@ def get_habit_stats(habit_id):
         .annotate(week=TruncWeek("scheduled_datetime"))
         .values("week")
         .annotate(
-            completed=Count("id", filter=Q(status="completed")),
+            completed=Count("id", filter=Q(status__in=["completed", "completed_late"])),
             missed=Count("id", filter=Q(status="missed")),
         )
         .order_by("-week")

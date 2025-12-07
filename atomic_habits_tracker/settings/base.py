@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     # Third-party
     "corsheaders",
     "rest_framework",
+    "rest_framework.authtoken",
+    "drf_spectacular",
     "django_celery_beat",
     # Project apps
     "users",
@@ -116,6 +118,27 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+# ---------------------------
+# SPECTACULAR
+# ---------------------------
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Atomic Habits Tracker API",
+    "DESCRIPTION": "API для трекера привычек",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SECURITY": [{"BearerAuth": []}],
+    "COMPONENT_SPLIT_REQUEST": True,
+    "SECURITY_DEFINITIONS": {
+        "BearerAuth": {
+            "type": "http",
+            "scheme": "bearer",
+            "bearerFormat": "JWT",
+        }
+    },
 }
 
 # ---------------------------
@@ -245,3 +268,5 @@ LOGGING = {
 # ---------------------------
 
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default=None)
+
+TELEGRAM_BIND_URL = env("TELEGRAM_BIND_URL", default="http://testserver/api/telegram/bind/")

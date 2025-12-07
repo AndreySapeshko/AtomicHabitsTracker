@@ -38,7 +38,9 @@ async def habits_handler(message: types.Message):
     habits = await sync_to_async(lambda: list(Habit.objects.filter(user=user).order_by("time_of_day")))()
 
     if not habits:
-        await message.answer(f"У вас пока нет привычек.\nДобавьте их в веб-версии.\n🌐 Открыть приложение: {WEB_URL}")
+        await sender.send(
+            message.chat.id, f"У вас пока нет привычек.\nДобавьте их в веб-версии.\n🌐 Открыть приложение: {WEB_URL}"
+        )
         return
 
     text = bold("📘 Ваши привычки\n")
@@ -73,8 +75,12 @@ async def habits_handler(message: types.Message):
 
 @router.message(Command(re.compile(r"stats_\d+")))
 async def habit_stats_cmd(msg: types.Message):
+    logger.info(f"Start habit_stats_cmd with: {msg.text}")
     habit_id = int(msg.text.split("_")[1])
     stats = await sync_to_async(get_habit_stats)(habit_id)
+    if not stats:
+        await sender.send(msg.chat.id, "Привычка не найдена")
+        return
 
     text = (
         f"📊 <b>Статистика</b>\n\n"

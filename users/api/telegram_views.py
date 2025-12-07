@@ -8,6 +8,8 @@ from users.model_files.profile import TelegramProfile
 
 
 class CreateBindingCodeView(APIView):
+    """Создание кодя для привязки Telegram аккаунта пользователя"""
+
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -20,6 +22,9 @@ class CreateBindingCodeView(APIView):
 
 
 class BindTelegramView(APIView):
+    """Реализация привязки Telegram аккаунта пользователя,
+    вызывается отправкой боту кода полученного в web-приложении."""
+
     permission_classes = []
 
     def post(self, request):

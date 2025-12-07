@@ -4,6 +4,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["localhost"])
 
+TELEGRAM_BIND_URL = "https://myawesomehabits.app/api/telegram/bind/"
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -33,6 +35,20 @@ CACHES = {
 SECURE_SSL_REDIRECT = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=env("JWT_ACCESS_LIFETIME", default=15)),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=env("JWT_REFRESH_LIFETIME", default=7)),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": SECRET_KEY,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+}
+
 
 # Logging
 LOGGING["handlers"]["file"] = {

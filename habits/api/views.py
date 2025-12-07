@@ -86,6 +86,11 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def details(self, request, pk=None):
+        """
+        GET /api/habits/{id}/
+        Привычка детально.
+        """
+
         cache_key = f"habit_details_{pk}"
         data = cache.get(cache_key)
 
@@ -132,6 +137,15 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=["get"])
     def stats(self, request, pk=None):
+        """
+        GET /api/habits/{id}/stats/
+        получаем статистику по привычке
+        """
+
+        habit = self.get_object()
+        if habit.user != self.request.user:
+            raise PermissionDenied("Вы не можете получать статистику по чужой привычке")
+
         cache_key = f"habit_stats_{pk}"
         data = cache.get(cache_key)
 
@@ -143,6 +157,11 @@ class HabitViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=["get"], url_path="instances/today")
     def instances_today(self, request):
+        """
+        GET /api//habits/instances/today/
+        получаем инстанцы на сегодня
+        """
+
         user = request.user
         now = timezone.now()
 

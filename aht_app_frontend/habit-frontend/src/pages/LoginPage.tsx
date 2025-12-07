@@ -38,30 +38,27 @@ export default function LoginPage() {
 
       <form onSubmit={login}>
         <div>
-          <label>Email</label>
+          <label htmlFor="email">Email</label>
           <br />
-          <input
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            type="email"
-          />
+          <input 
+            id="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            type="email" />
         </div>
 
         <div style={{ marginTop: 10 }}>
-          <label>Пароль</label>
+          <label htmlFor="password">Пароль</label>
           <br />
           <input
+            id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             type="password"
           />
         </div>
 
-        {error && (
-          <div style={{ marginTop: 10, color: "red" }}>
-            {error}
-          </div>
-        )}
+        {error && <div style={{ marginTop: 10, color: "red" }}>{error}</div>}
 
         <button style={{ marginTop: 15 }} type="submit">
           Войти

@@ -11,7 +11,7 @@ export default function ProfilePage() {
   const [bindingCode, setBindingCode] = useState<string | null>(null);
 
   // URL бота — вынести в env позже
-  const TELEGRAM_BOT_URL = "https://t.me/AtomicHabitsTrackerBot";
+  const TELEGRAM_BOT_URL = import.meta.env.VITE_TELEGRAM_BOT_URL;
 
   async function loadProfile() {
     try {

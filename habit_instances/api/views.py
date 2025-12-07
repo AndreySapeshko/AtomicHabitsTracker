@@ -1,6 +1,8 @@
+from django.core.cache import cache
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
@@ -31,6 +33,8 @@ class HabitInstanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=["post"], detail=True)
     def mark_complete(self, request, pk=None):
+        """Устанавливает инстансу статус "completed" """
+
         instance = self.get_object()
         if instance.status != HabitInstance.Status.SCHEDULED and instance.status != HabitInstance.Status.PENDING:
             return Response({"error": "Already processed"}, status=400)
@@ -39,8 +43,23 @@ class HabitInstanceViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=["post"], detail=True)
     def mark_missed(self, request, pk=None):
+        """Устанавливает инстансу статус "missed" """
+
         instance = self.get_object()
         if instance.status != HabitInstance.Status.SCHEDULED and instance.status != HabitInstance.Status.PENDING:
             return Response({"error": "Already processed"}, status=400)
         instance.mark_failed()
         return Response({"status": "missed"})
+
+    def perform_update(self, serializer):
+        instance = self.get_object()
+        if instance.habit.user != self.request.user:
+            raise PermissionDenied("Вы не можете изменять чужой инстанц")
+
+        instance = serializer.save()
+
+        # Чистим кеш
+        cache.delete(f"habit_details_{instance.habit.id}")
+        cache.delete(f"habit_stats_{instance.habit.id}")
+
+        return instance

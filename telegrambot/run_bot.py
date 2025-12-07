@@ -6,6 +6,7 @@ import redis.asyncio as aioredis
 from aiogram import Bot
 from django.conf import settings
 
+from telegrambot.bot import get_bot
 from telegrambot.dispatcher import dp, setup_routers
 
 logger = logging.getLogger("telegrambot")
@@ -26,15 +27,15 @@ def json_to_markup(keyboard: dict):
 
 
 async def redis_listener(bot: Bot):
-    """
-    Separate coroutine that listens to Redis for outgoing commands.
-    """
+    if not getattr(settings, "USE_REDIS", True):
+        logger.info("⚠️ Redis is disabled — redis_listener will not start")
+        return
+
     r = aioredis.from_url("redis://localhost/0")
     logger.info("🚀 Start redis_listener")
-    while True:
-        # Blocking wait for a new command
-        raw = await r.brpop("telegram:out")
 
+    while True:
+        raw = await r.brpop("telegram:out")
         _, data = raw
 
         try:
@@ -52,10 +53,16 @@ async def redis_listener(bot: Bot):
 
 async def main():
     setup_routers()
-    bot = Bot(settings.TELEGRAM_BOT_TOKEN)
+
+    bot = get_bot()
+
+    # ✅ В CI бот просто не запускается
+    if bot is None:
+        logger.info("⚠️ Bot is disabled (CI or no token) — exiting")
+        return
+
     logger.info("🚀 Telegram bot started")
 
-    # run polling + queue listener concurrently
     try:
         await asyncio.gather(
             dp.start_polling(bot),
