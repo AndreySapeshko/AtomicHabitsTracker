@@ -98,3 +98,28 @@ async def test_detail_habit(bot, fake_habits_sender):
     text = fake_habits_sender.send.await_args.args[1]
 
     assert "test_detail" in text
+
+    @pytest.mark.asyncio
+    @pytest.mark.django_db
+    async def test_detail_non_existent_habit(bot, fake_habits_sender):
+        user = await sync_to_async(UserFactory)()
+        profile = await sync_to_async(ProfileFactory)(user=user)
+        await sync_to_async(HabitFactory)(user=user, action="test_detail")
+
+        update = Update(
+            update_id=44,
+            message=Message(
+                message_id=404,
+                date=timezone.now(),
+                chat=Chat(id=profile.chat_id, type="private"),
+                from_user=User(id=user.id, is_bot=False, first_name="Tester"),
+                text=f"/habit_{999}",
+            ),
+        )
+
+        await dp.feed_update(bot, update)
+
+        fake_habits_sender.send.assert_awaited_once()
+        text = fake_habits_sender.send.await_args.args[1]
+
+        assert "Привычка не найдена" in text
