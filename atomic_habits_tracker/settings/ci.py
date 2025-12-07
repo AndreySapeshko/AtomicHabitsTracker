@@ -23,6 +23,3 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
 
 # Disable strong password validators to speed CI
 AUTH_PASSWORD_VALIDATORS = []
-
-print("✅ DJANGO SETTINGS: CI")
-raise RuntimeError("🔥 CI SETTINGS LOADED")
