@@ -100,11 +100,6 @@ AUTH_USER_MODEL = "users.User"
 # CSRF
 # ---------------------------
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://127.0.0.1",
-]
 
 # ---------------------------
 # Static & Media
