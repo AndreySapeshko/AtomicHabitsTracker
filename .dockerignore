@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+env/
+venv/
+
+# Django
+*.sqlite3
+*.log
+media/
+static/
+
+# Node
+node_modules/
+dist/
+
+# Frontend
+aht_app_frontend/**/node_modules
+aht_app_frontend/**/dist
+
+# Tests & cache
+.pytest_cache/
+.mypy_cache/
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

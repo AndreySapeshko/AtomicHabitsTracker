@@ -16,7 +16,7 @@ WEB_URL = settings.WEB_APP_URL
 
 @router.message(Command("start"))
 async def start_cmd(msg: Message):
-    logger.info("Start start_cmd")
+    logger.info(f"Start start_cmd with chat.id: {msg.chat.id}")
     text = (
         "👋 Привет! Я — бот Habit Tracker.\n\n"
         "Чтобы я мог отправлять напоминания:\n"

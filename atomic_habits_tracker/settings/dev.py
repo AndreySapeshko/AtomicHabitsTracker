@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = env("DEBUG", default=True)
 
 DATABASES = {
     "default": {
@@ -16,6 +16,9 @@ DATABASES = {
 REDIS_HOST = env("REDIS_HOST", default="localhost")
 REDIS_PORT = env("REDIS_PORT", default=6379)
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/1")
 
 CACHES = {
     "default": {
@@ -34,7 +37,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:5173",
 ]
 
-TELEGRAM_BIND_URL = "http://127.0.0.1:8000/api/telegram/bind/"
+TELEGRAM_BIND_URL = env("TELEGRAM_BIND_URL", default="http://127.0.0.1:8000/api/telegram/bind/")
 
 # CELERY_WORKER_LOG_FILE = None  # Отключаем файловые логи Celery
 # CELERY_WORKER_REDIRECT_STDOUTS = False  # Не перенаправлять stdout
