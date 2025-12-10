@@ -6,10 +6,13 @@ DEBUG = env("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=["backend"])
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost",
-    "http://127.0.0.1",
-]
+CORS_ALLOWED_ORIGINS = env.list(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "http://localhost",
+        "http://127.0.0.1",
+    ],
+)
 
 CORS_ALLOW_HEADERS = list(default_headers) + [
     "authorization",
