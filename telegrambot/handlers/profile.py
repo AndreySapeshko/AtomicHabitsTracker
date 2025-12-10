@@ -52,7 +52,7 @@ async def profile_handler(message: types.Message):
     # 3. Строим текст ответа
     text = [
         "👤 <b>Ваш профиль</b>\n",
-        f"</b>Email:</b> {user.email}",
+        f"<b>Email:</b> {user.email}",
         f"<b>Telegram:</b> {profile.username or '—'}\n",
         "<b>Telegram:</b> привязан ✔️",
         "",
