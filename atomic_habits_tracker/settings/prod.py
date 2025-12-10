@@ -80,4 +80,4 @@ LOGGING["handlers"]["file"] = {
     "backupCount": 5,
     "formatter": "verbose",
 }
-LOGGING["root"]["handlers"] = ["console","file"]
+LOGGING["root"]["handlers"] = ["console", "file"]
