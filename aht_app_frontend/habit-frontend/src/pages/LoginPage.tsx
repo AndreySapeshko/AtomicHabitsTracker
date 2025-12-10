@@ -3,6 +3,7 @@ import { authApi } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import { useNavigate } from "react-router-dom";
 import { AxiosError } from "axios";
+import { Layout } from "../components/Layout";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -33,37 +34,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ padding: 20 }}>
-      <h2>Вход</h2>
+    <Layout>
+      <div style={{ padding: 20 }}>
+        <h2>Вход</h2>
 
-      <form onSubmit={login}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <br />
-          <input 
-            id="email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            type="email" />
-        </div>
+        <form onSubmit={login}>
+          <div>
+            <label htmlFor="email">Email</label>
+            <br />
+            <input
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              type="email"
+            />
+          </div>
 
-        <div style={{ marginTop: 10 }}>
-          <label htmlFor="password">Пароль</label>
-          <br />
-          <input
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            type="password"
-          />
-        </div>
+          <div style={{ marginTop: 10 }}>
+            <label htmlFor="password">Пароль</label>
+            <br />
+            <input
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              type="password"
+            />
+          </div>
 
-        {error && <div style={{ marginTop: 10, color: "red" }}>{error}</div>}
+          {error && <div style={{ marginTop: 10, color: "red" }}>{error}</div>}
 
-        <button style={{ marginTop: 15 }} type="submit">
-          Войти
-        </button>
-      </form>
-    </div>
+          <button style={{ marginTop: 15 }} type="submit">
+            Войти
+          </button>
+        </form>
+      </div>
+    </Layout>
   );
 }

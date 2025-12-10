@@ -98,8 +98,21 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = "users.User"
 
 # ---------------------------
+# CSRF
+# ---------------------------
+
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+]
+
+# ---------------------------
 # Static & Media
 # ---------------------------
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "http")
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
@@ -153,8 +166,8 @@ SPECTACULAR_SETTINGS = {
 CELERY_TASK_ALWAYS_EAGER = False
 CELERY_TASK_EAGER_PROPAGATES = False
 
-CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
-CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")
+# CELERY_BROKER_URL = env("CELERY_BROKER_URL", default="redis://localhost:6379/0")
+# CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default="redis://localhost:6379/1")
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
@@ -171,8 +184,8 @@ CELERY_BEAT_SCHEDULE = {
 # Logging (base, override in prod)
 # ---------------------------
 
-LOG_DIR = Path(BASE_DIR) / "logs"
-os.makedirs(LOG_DIR, exist_ok=True)
+# LOG_DIR = Path(BASE_DIR) / "logs"
+# os.makedirs(LOG_DIR, exist_ok=True)
 
 LOGGING = {
     "version": 1,
@@ -181,44 +194,13 @@ LOGGING = {
         "verbose": {
             "format": "[{asctime}] [{levelname}] {name}: {message}",
             "style": "{",
-        },
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
-        },
+        }
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "verbose",
-        },
-        "file_all": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_DIR / "django.log",
-            "maxBytes": 1024 * 1024 * 10,  # 10 MB
-            "backupCount": 5,
-            "formatter": "verbose",
-            "encoding": "utf-8",
-        },
-        "file_errors": {
-            "level": "ERROR",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_DIR / "errors.log",
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 5,
-            "formatter": "verbose",
-            "encoding": "utf-8",
-        },
-        "celery_file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": LOG_DIR / "celery.log",  # Теперь файл создастся здесь
-            "maxBytes": 1024 * 1024 * 10,
-            "backupCount": 5,
-            "formatter": "verbose",
-            "encoding": "utf-8",
-        },
+        }
     },
     "root": {  # всё, у чего нет своего логгера
         "handlers": ["console"],
@@ -226,37 +208,37 @@ LOGGING = {
     },
     "loggers": {
         "django": {
-            "handlers": ["console", "file_all", "file_errors"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "habit": {
-            "handlers": ["console", "file_all", "file_errors"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "habit_instances": {
-            "handlers": ["console", "file_all", "file_errors"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "users": {
-            "handlers": ["console", "file_all", "file_errors"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
         "celery": {
-            "handlers": ["console", "celery_file", "file_errors"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
         "celery.worker": {
-            "handlers": ["console", "celery_file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
         "telegrambot": {
-            "handlers": ["console", "celery_file"],
+            "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },

@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { habitsApi } from "../api/habitsApi";
 import type { Habit } from "../types/Habit";
 import type { HabitCreateData } from "../types/Habit";
+import { Layout } from "../components/Layout";
 
 export default function HabitEditPage() {
   const { id } = useParams();
@@ -94,183 +95,189 @@ export default function HabitEditPage() {
   const isPleasantHabit = habit.is_pleasant;
 
   return (
-    <div style={{ padding: 20, maxWidth: 800, margin: "0 auto" }}>
-      <h2>Редактирование привычки</h2>
+    <Layout>
+      <div style={{ padding: 20, maxWidth: 800, margin: "0 auto" }}>
+        <h2>Редактирование привычки</h2>
 
-      <form onSubmit={submit}>
-        {/* Тип (нельзя менять!) */}
-        <p>
-          <b>Тип:</b> {habit.is_pleasant ? "Приятная" : "Полезная"} (тип изменить нельзя)
-        </p>
+        <form onSubmit={submit}>
+          {/* Тип (нельзя менять!) */}
+          <p>
+            <b>Тип:</b> {habit.is_pleasant ? "Приятная" : "Полезная"} (тип изменить нельзя)
+          </p>
 
-        {/* Действие */}
-        <label>
-          Действие:
-          <input
-            type="text"
-            value={form.action}
-            onChange={(e) => update("action", e.target.value)}
-          />
-        </label>
-        <br />
+          {/* Действие */}
+          <label>
+            Действие:
+            <input
+              type="text"
+              value={form.action}
+              onChange={(e) => update("action", e.target.value)}
+            />
+          </label>
+          <br />
 
-        {/* Место */}
-        <label>
-          Место:
-          <input type="text" value={form.place} onChange={(e) => update("place", e.target.value)} />
-        </label>
-        <br />
+          {/* Место */}
+          <label>
+            Место:
+            <input
+              type="text"
+              value={form.place}
+              onChange={(e) => update("place", e.target.value)}
+            />
+          </label>
+          <br />
 
-        {/* Публичность */}
-        <label>
-          <input
-            type="checkbox"
-            checked={form.is_public}
-            onChange={(e) => update("is_public", e.target.checked)}
-          />{" "}
-          Публичная
-        </label>
+          {/* Публичность */}
+          <label>
+            <input
+              type="checkbox"
+              checked={form.is_public}
+              onChange={(e) => update("is_public", e.target.checked)}
+            />{" "}
+            Публичная
+          </label>
 
-        <br />
-        <hr />
-        <br />
+          <br />
+          <hr />
+          <br />
 
-        {!isPleasantHabit && (
-          <>
-            {/* Время */}
-            <label>
-              Время выполнения:
-              <input
-                type="time"
-                value={form.time_of_day}
-                onChange={(e) => update("time_of_day", e.target.value)}
-              />
-            </label>
-            <br />
-
-            {/* Периодичность */}
-            <label>
-              Периодичность:
-              <select
-                value={form.periodicity_days}
-                onChange={(e) => update("periodicity_days", Number(e.target.value))}
-              >
-                <option value={1}>Каждый день</option>
-                <option value={2}>Раз в 2 дня</option>
-                <option value={3}>Раз в 3 дня</option>
-                <option value={5}>Раз в 5 дней</option>
-                <option value={7}>Раз в неделю</option>
-              </select>
-            </label>
-            <br />
-
-            {/* Лимит */}
-            <label>
-              Лимит повторов:
-              <select
-                value={form.repeat_limit}
-                onChange={(e) => update("repeat_limit", Number(e.target.value))}
-              >
-                <option value={21}>21 повтор</option>
-                <option value={30}>30 повторов</option>
-                <option value={45}>45 повторов</option>
-              </select>
-            </label>
-
-            <br />
-            <br />
-
-            {/* Награда */}
-            <b>Награда</b>
-            <div style={{ marginTop: 8 }}>
+          {!isPleasantHabit && (
+            <>
+              {/* Время */}
               <label>
+                Время выполнения:
                 <input
-                  type="radio"
-                  checked={rewardMode === "text"}
-                  onChange={() => {
-                    setRewardMode("text");
-                    update("related_pleasant_habit", null);
-                  }}
+                  type="time"
+                  value={form.time_of_day}
+                  onChange={(e) => update("time_of_day", e.target.value)}
                 />
-                Текстовая награда
               </label>
+              <br />
 
-              <label style={{ marginLeft: 20 }}>
-                <input
-                  type="radio"
-                  checked={rewardMode === "pleasant"}
-                  onChange={() => {
-                    setRewardMode("pleasant");
-                    update("reward_text", "");
-                  }}
-                />
-                Приятная привычка
-              </label>
-            </div>
-
-            {/* Текстовая награда */}
-            {rewardMode === "text" && (
-              <div style={{ marginTop: 10 }}>
-                <input
-                  type="text"
-                  value={form.reward_text ?? ""}
-                  onChange={(e) => update("reward_text", e.target.value)}
-                />
-              </div>
-            )}
-
-            {/* Приятная привычка */}
-            {rewardMode === "pleasant" && (
-              <div style={{ marginTop: 10 }}>
+              {/* Периодичность */}
+              <label>
+                Периодичность:
                 <select
-                  value={form.related_pleasant_habit ?? ""}
-                  onChange={(e) => update("related_pleasant_habit", Number(e.target.value))}
+                  value={form.periodicity_days}
+                  onChange={(e) => update("periodicity_days", Number(e.target.value))}
                 >
-                  <option value="">Выберите привычку</option>
-                  {pleasantList.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.action}
-                    </option>
-                  ))}
+                  <option value={1}>Каждый день</option>
+                  <option value={2}>Раз в 2 дня</option>
+                  <option value={3}>Раз в 3 дня</option>
+                  <option value={5}>Раз в 5 дней</option>
+                  <option value={7}>Раз в неделю</option>
                 </select>
+              </label>
+              <br />
 
-                {pleasantList.length === 0 && (
-                  <p style={{ color: "red" }}>
-                    У вас нет приятных привычек. Создайте хотя бы одну.
-                  </p>
-                )}
+              {/* Лимит */}
+              <label>
+                Лимит повторов:
+                <select
+                  value={form.repeat_limit}
+                  onChange={(e) => update("repeat_limit", Number(e.target.value))}
+                >
+                  <option value={21}>21 повтор</option>
+                  <option value={30}>30 повторов</option>
+                  <option value={45}>45 повторов</option>
+                </select>
+              </label>
+
+              <br />
+              <br />
+
+              {/* Награда */}
+              <b>Награда</b>
+              <div style={{ marginTop: 8 }}>
+                <label>
+                  <input
+                    type="radio"
+                    checked={rewardMode === "text"}
+                    onChange={() => {
+                      setRewardMode("text");
+                      update("related_pleasant_habit", null);
+                    }}
+                  />
+                  Текстовая награда
+                </label>
+
+                <label style={{ marginLeft: 20 }}>
+                  <input
+                    type="radio"
+                    checked={rewardMode === "pleasant"}
+                    onChange={() => {
+                      setRewardMode("pleasant");
+                      update("reward_text", "");
+                    }}
+                  />
+                  Приятная привычка
+                </label>
               </div>
-            )}
-          </>
-        )}
 
-        <br />
-        <br />
-        <button type="submit">💾 Сохранить изменения</button>
+              {/* Текстовая награда */}
+              {rewardMode === "text" && (
+                <div style={{ marginTop: 10 }}>
+                  <input
+                    type="text"
+                    value={form.reward_text ?? ""}
+                    onChange={(e) => update("reward_text", e.target.value)}
+                  />
+                </div>
+              )}
 
-        <br />
-        <br />
+              {/* Приятная привычка */}
+              {rewardMode === "pleasant" && (
+                <div style={{ marginTop: 10 }}>
+                  <select
+                    value={form.related_pleasant_habit ?? ""}
+                    onChange={(e) => update("related_pleasant_habit", Number(e.target.value))}
+                  >
+                    <option value="">Выберите привычку</option>
+                    {pleasantList.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.action}
+                      </option>
+                    ))}
+                  </select>
 
-        <button
-          type="button"
-          onClick={() =>
-            habitsApi
-              .updateHabit(habit.id, {
-                is_active: !habit.is_active,
-              })
-              .then(() => loadHabit())
-          }
-        >
-          {habit.is_active ? "🔴 Деактивировать" : "🟢 Активировать"}
-        </button>
+                  {pleasantList.length === 0 && (
+                    <p style={{ color: "red" }}>
+                      У вас нет приятных привычек. Создайте хотя бы одну.
+                    </p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
 
-        <br />
-        <br />
+          <br />
+          <br />
+          <button type="submit">💾 Сохранить изменения</button>
 
-        <button type="button" onClick={() => navigate(`/habits/${habit.id}`)}>
-          ← Назад
-        </button>
-      </form>
-    </div>
+          <br />
+          <br />
+
+          <button
+            type="button"
+            onClick={() =>
+              habitsApi
+                .updateHabit(habit.id, {
+                  is_active: !habit.is_active,
+                })
+                .then(() => loadHabit())
+            }
+          >
+            {habit.is_active ? "🔴 Деактивировать" : "🟢 Активировать"}
+          </button>
+
+          <br />
+          <br />
+
+          <button type="button" onClick={() => navigate(`/habits/${habit.id}`)}>
+            ← Назад
+          </button>
+        </form>
+      </div>
+    </Layout>
   );
 }

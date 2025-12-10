@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -7,6 +8,7 @@ urlpatterns = [
     path("api/", include("habits.api.urls")),
     path("api/", include("users.api.urls")),
     path("api/", include("habit_instances.api.urls")),
+    path("health/", lambda request: JsonResponse({"status": "ok"})),
 ]
 
 urlpatterns += [

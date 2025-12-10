@@ -1,7 +1,11 @@
+import logging
+
 from aiogram import Bot
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
-from telegrambot.bot import get_bot
+from telegrambot.bot import bot
+
+logger = logging.getLogger("telegrambot")
 
 
 class TelegramSender:
@@ -10,7 +14,10 @@ class TelegramSender:
         self.bot = bot
 
     async def send(self, chat_id: int, text: str, kb=None):
-        await self.bot.send_message(chat_id, text, reply_markup=kb, parse_mode="HTML")
+        try:
+            await self.bot.send_message(chat_id, text, reply_markup=kb, parse_mode="HTML")
+        except Exception as e:
+            logger.error(f"Ошибка при отправки сообщения: {e}")
 
     def habit_link_keyboard(self, habit_id: int):
         return InlineKeyboardMarkup(
@@ -29,4 +36,4 @@ class TelegramSender:
         )
 
 
-sender = get_bot()
+sender = TelegramSender(bot)

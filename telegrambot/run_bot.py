@@ -6,7 +6,7 @@ import redis.asyncio as aioredis
 from aiogram import Bot
 from django.conf import settings
 
-from telegrambot.bot import get_bot
+from telegrambot.bot import bot
 from telegrambot.dispatcher import dp, setup_routers
 
 logger = logging.getLogger("telegrambot")
@@ -31,7 +31,7 @@ async def redis_listener(bot: Bot):
         logger.info("⚠️ Redis is disabled — redis_listener will not start")
         return
 
-    r = aioredis.from_url("redis://localhost/0")
+    r = aioredis.from_url(f"redis://{settings.REDIS_HOST}/0")
     logger.info("🚀 Start redis_listener")
 
     while True:
@@ -53,8 +53,6 @@ async def redis_listener(bot: Bot):
 
 async def main():
     setup_routers()
-
-    bot = get_bot()
 
     # ✅ В CI бот просто не запускается
     if bot is None:
