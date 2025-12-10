@@ -9,7 +9,7 @@ Options:
 
 import os
 
-env = os.environ.get("DJANGO_ENV", "prod").lower()
+env = os.environ.get("DJANGO_ENV", "dev").lower()
 
 if env == "prod":
     from .prod import *
