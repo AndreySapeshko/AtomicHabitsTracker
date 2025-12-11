@@ -22,15 +22,12 @@ async def redis_in_listener(dp, bot):
             _, data = await r.brpop("telegram:in")
 
             payload = json.loads(data)
-            logger.error(f"RAW PAYLOAD FROM REDIS: {payload}")
 
             try:
                 update = types.Update.model_validate(payload)
             except Exception as e:
                 logger.error(f"❌ Ошибка при парсинге Update: {e}")
                 continue
-
-            logger.info(f"📥 Parsed Update: {update}")
 
             await dp.feed_update(bot, update)
 

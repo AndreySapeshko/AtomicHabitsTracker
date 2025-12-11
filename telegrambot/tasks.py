@@ -29,6 +29,5 @@ def send_telegram_message(chat_id: int, text: str, keyboard_dict=None):
 
 @shared_task
 def process_update_task(update_dict):
-    logger.info("📥 Celery получил update, отправляю в Redis telegram:in")
 
     r.lpush("telegram:in", json.dumps(update_dict))
