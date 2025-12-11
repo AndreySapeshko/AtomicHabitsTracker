@@ -106,7 +106,6 @@ AUTH_USER_MODEL = "users.User"
 # ---------------------------
 
 USE_X_FORWARDED_HOST = True
-SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "http")
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
@@ -244,5 +243,4 @@ LOGGING = {
 # ---------------------------
 
 TELEGRAM_BOT_TOKEN = env("TELEGRAM_BOT_TOKEN", default=None)
-
 TELEGRAM_BIND_URL = env("TELEGRAM_BIND_URL", default="http://testserver/api/telegram/bind/")
