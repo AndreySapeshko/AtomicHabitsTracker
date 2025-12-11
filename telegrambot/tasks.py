@@ -32,5 +32,6 @@ def process_update_task(update_dict):
     logger_tg.info("Start process_update_task")
     dp = setup_routers()
     update = types.Update.to_python(update_dict)
+    logger_tg.info(f"🚀 запущен Update.to_python получены: {update}")
     asyncio.run(dp.feed_update(bot, update))
     logger_tg.info(f"🚀 запущен dp.feed_update with: {update}")
