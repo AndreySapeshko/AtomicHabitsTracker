@@ -22,6 +22,7 @@ async def redis_in_listener(dp, bot):
             _, data = await r.brpop("telegram:in")
 
             payload = json.loads(data)
+            logger.error(f"RAW PAYLOAD FROM REDIS: {payload}")
             update = types.Update.to_python(payload)
 
             logger.info(f"📥 Получен update из Redis: {update}")
