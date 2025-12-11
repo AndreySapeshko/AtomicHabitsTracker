@@ -58,12 +58,10 @@ class BindTelegramView(APIView):
 
 @csrf_exempt
 def telegram_webhook(request):
-    logger.info("🚀 Start telegram_webhook view")
     if request.method == "POST":
         try:
             payload = json.loads(request.body)
             process_update_task.delay(payload)
-            logger.info(f"🚀 запущен process_update_task with: {payload}")
         except Exception as e:
             print("Webhook error:", e)
         return JsonResponse({"status": "ok"})

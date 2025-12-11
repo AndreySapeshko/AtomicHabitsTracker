@@ -1,56 +1,17 @@
 import asyncio
-import json
 import logging
 
-import redis.asyncio as aioredis
-from aiogram import Bot
-from django.conf import settings
+from telegrambot.bot import get_bot
 
-from telegrambot.bot import bot
+from .dispatcher import setup_routers
+from .redis_listener import redis_in_listener, redis_listener
 
 logger = logging.getLogger("telegrambot")
 
 
-def json_to_markup(keyboard: dict):
-    markup = None
-    if keyboard:
-        from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
-
-        buttons = []
-        for row in keyboard["inline_keyboard"]:
-            btn_row = [InlineKeyboardButton(text=b["text"], callback_data=b["callback_data"]) for b in row]
-            buttons.append(btn_row)
-
-        markup = InlineKeyboardMarkup(inline_keyboard=buttons)
-    return markup
-
-
-async def redis_listener(bot: Bot):
-    if not getattr(settings, "USE_REDIS", True):
-        logger.info("⚠️ Redis is disabled — redis_listener will not start")
-        return
-
-    r = aioredis.from_url(f"redis://{settings.REDIS_HOST}/0")
-    logger.info("🚀 Start redis_listener")
-
-    while True:
-        raw = await r.brpop("telegram:out")
-        _, data = raw
-
-        try:
-            payload = json.loads(data)
-        except Exception:
-            logger.error("Invalid JSON in telegram:out")
-            continue
-
-        await bot.send_message(
-            payload["chat_id"],
-            payload["text"],
-            reply_markup=json_to_markup(payload.get("keyboard")),
-        )
-
-
 async def main():
+    bot = get_bot()
+    dp = setup_routers()
 
     # ✅ В CI бот просто не запускается
     if bot is None:
@@ -60,7 +21,10 @@ async def main():
     logger.info("🚀 Telegram bot started")
 
     try:
-        await redis_listener(bot)
+        await asyncio.gather(
+            redis_listener(bot),  # исходящие сообщения → Telegram
+            redis_in_listener(dp, bot),  # входящие update из webhook
+        )
     except asyncio.CancelledError:
         print("👋 Shutdown requested")
     finally:
