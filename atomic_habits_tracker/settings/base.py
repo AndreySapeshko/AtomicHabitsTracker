@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "drf_spectacular",
     "django_celery_beat",
-    "django-extensions",
+    "django_extensions",
     # Project apps
     "users",
     "habits",
