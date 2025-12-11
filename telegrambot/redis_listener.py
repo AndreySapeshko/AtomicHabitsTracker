@@ -23,9 +23,14 @@ async def redis_in_listener(dp, bot):
 
             payload = json.loads(data)
             logger.error(f"RAW PAYLOAD FROM REDIS: {payload}")
-            update = types.Update.to_python(payload)
 
-            logger.info(f"📥 Получен update из Redis: {update}")
+            try:
+                update = types.Update.model_validate(payload)
+            except Exception as e:
+                logger.error(f"❌ Ошибка при парсинге Update: {e}")
+                continue
+
+            logger.info(f"📥 Parsed Update: {update}")
 
             await dp.feed_update(bot, update)
 
