@@ -1,15 +1,15 @@
-import asyncio
+import json
 import logging
 
-from aiogram import types
+import redis
 from celery import shared_task
+from django.conf import settings
 
-from .bot import bot
-from .dispatcher import setup_routers
 from .redis_queue import push_command
 
 logger = logging.getLogger("celery")
-logger_tg = logging.getLogger("telegrambot")
+
+r = redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0)
 
 
 @shared_task
@@ -29,9 +29,6 @@ def send_telegram_message(chat_id: int, text: str, keyboard_dict=None):
 
 @shared_task
 def process_update_task(update_dict):
-    logger_tg.info("Start process_update_task")
-    dp = setup_routers()
-    update = types.Update.to_python(update_dict)
-    logger_tg.info(f"🚀 запущен Update.to_python получены: {update}")
-    asyncio.run(dp.feed_update(bot, update))
-    logger_tg.info(f"🚀 запущен dp.feed_update with: {update}")
+    logger.info("📥 Celery получил update, отправляю в Redis telegram:in")
+
+    r.lpush("telegram:in", json.dumps(update_dict))
