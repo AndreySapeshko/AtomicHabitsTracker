@@ -1,5 +1,6 @@
 import json
 import uuid
+import logging
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -9,6 +10,8 @@ from rest_framework.views import APIView
 
 from telegrambot.tasks import process_update_task
 from users.model_files.profile import TelegramProfile
+
+logger = logging.getLogger("telegrambot")
 
 
 class CreateBindingCodeView(APIView):
@@ -55,10 +58,12 @@ class BindTelegramView(APIView):
 
 @csrf_exempt
 def telegram_webhook(request):
+    logger.info("🚀 Start telegram_webhook view")
     if request.method == "POST":
         try:
             payload = json.loads(request.body)
-            process_update_task.delay(payload)  # отправляем в Celery
+            process_update_task.delay(payload)
+            logger.info(f"🚀 запущен process_update_task with: {payload}")
         except Exception as e:
             print("Webhook error:", e)
         return JsonResponse({"status": "ok"})
