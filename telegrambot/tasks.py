@@ -5,7 +5,7 @@ from aiogram import types
 from celery import shared_task
 
 from .bot import bot
-from .dispatcher import dp
+from .dispatcher import setup_routers
 from .redis_queue import push_command
 
 logger = logging.getLogger("celery")
@@ -30,6 +30,7 @@ def send_telegram_message(chat_id: int, text: str, keyboard_dict=None):
 @shared_task
 def process_update_task(update_dict):
     logger_tg.info("Start process_update_task")
+    dp = setup_routers()
     update = types.Update.to_python(update_dict)
     asyncio.run(dp.feed_update(bot, update))
     logger_tg.info(f"🚀 запущен dp.feed_update with: {update}")

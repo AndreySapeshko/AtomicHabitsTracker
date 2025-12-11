@@ -1,6 +1,6 @@
 import json
-import uuid
 import logging
+import uuid
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt

@@ -7,7 +7,6 @@ from aiogram import Bot
 from django.conf import settings
 
 from telegrambot.bot import bot
-from telegrambot.dispatcher import setup_routers
 
 logger = logging.getLogger("telegrambot")
 
@@ -52,7 +51,6 @@ async def redis_listener(bot: Bot):
 
 
 async def main():
-    setup_routers()
 
     # ✅ В CI бот просто не запускается
     if bot is None:
