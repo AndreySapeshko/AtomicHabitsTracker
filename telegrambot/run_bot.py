@@ -7,7 +7,7 @@ from aiogram import Bot
 from django.conf import settings
 
 from telegrambot.bot import bot
-from telegrambot.dispatcher import dp, setup_routers
+from telegrambot.dispatcher import setup_routers
 
 logger = logging.getLogger("telegrambot")
 
@@ -62,10 +62,7 @@ async def main():
     logger.info("🚀 Telegram bot started")
 
     try:
-        await asyncio.gather(
-            dp.start_polling(bot),
-            redis_listener(bot),
-        )
+        await redis_listener(bot)
     except asyncio.CancelledError:
         print("👋 Shutdown requested")
     finally:
