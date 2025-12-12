@@ -7,7 +7,7 @@ import { http, HttpResponse } from "msw";
 describe("HabitsPage", () => {
   test("отображает привычки, полученные с сервера", async () => {
     server.use(
-      http.get("http://127.0.0.1:8000/api/habits*", () =>
+      http.get("*/habits/", () =>
         HttpResponse.json([
           {
             id: 1,

@@ -1,10 +1,9 @@
-import { render, screen, } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { MemoryRouter, Routes, Route } from "react-router-dom";
 import HabitAnalyticsPage from "../../pages/HabitAnalyticsPage";
 import { server } from "../../tests/msw/server";
 import { http, HttpResponse } from "msw";
 
-// Моковые данные
 const mockStats = {
   progress_percent: 75,
   repeat_limit: 3,
@@ -26,14 +25,13 @@ const mockHabit = {
   },
 };
 
-// Подменяем API ответы перед каждым тестом
 beforeEach(() => {
   server.use(
-    http.get("http://127.0.0.1:8000/api/habits/:id/stats/", () =>
+    http.get("*/habits/:id/stats/", () =>
       HttpResponse.json(mockStats)
     ),
 
-    http.get("http://127.0.0.1:8000/api/habits/:id/details/", () =>
+    http.get("*/habits/:id/details/", () =>
       HttpResponse.json(mockHabit)
     )
   );
@@ -48,24 +46,23 @@ test("renders habit analytics data", async () => {
     </MemoryRouter>
   );
 
-  // 1. Проверяем, что сперва отображается "Загрузка..."
+  // Loading
   expect(screen.getByText(/загрузка/i)).toBeInTheDocument();
 
-  // 2. Дождаться загрузки данных
+  // Wait for habit name
   const title = await screen.findByText((text) =>
-  text.includes("Drink water")
-);
-
-  // 3. Проверяем ключевые элементы
+    text.includes("Drink water")
+  );
   expect(title).toBeInTheDocument();
+
+  // Check sections
   expect(screen.getByText("🎯 Прогресс")).toBeInTheDocument();
   expect(screen.getByText(/текущий стрик/i)).toBeInTheDocument();
   expect(screen.getByText(/максимальный стрик/i)).toBeInTheDocument();
   expect(screen.getByText(/последние 30 дней/i)).toBeInTheDocument();
 
-  // 4. Проверяем отображение значений
-  expect(screen.getByText("5")).toBeInTheDocument(); // current streak
-  expect(screen.getByText("10")).toBeInTheDocument(); // max streak
-  //expect(screen.getByText("20")).toBeInTheDocument(); // completed
-  expect(screen.getByText("3")).toBeInTheDocument(); // missed
+  // Check numbers
+  expect(screen.getByText("5")).toBeInTheDocument();
+  expect(screen.getByText("10")).toBeInTheDocument();
+  expect(screen.getByText("3")).toBeInTheDocument();
 });

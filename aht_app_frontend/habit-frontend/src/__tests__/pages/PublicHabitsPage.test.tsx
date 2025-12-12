@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { server } from "../../tests/msw/server";
 import { http, HttpResponse } from "msw";
 
-const API_URL = "http://127.0.0.1:8000/api/habits/public/";
+const API_URL = "*/habits/public/";
 
 test("public page lists public habits", async () => {
   server.use(
