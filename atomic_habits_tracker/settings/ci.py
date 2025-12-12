@@ -16,5 +16,15 @@ CELERY_BROKER_URL = "memory://"
 CELERY_RESULT_BACKEND = "cache+memory://"
 CELERY_TASK_ALWAYS_EAGER = True
 
+REDIS_HOST = env("REDIS_HOST", default="localhost")
+REDIS_PORT = env("REDIS_PORT", default=6379)
+
+USE_TELEGRAM_BOT = False
+TELEGRAM_BOT_TOKEN = "ci-dummy-token"
+TELEGRAM_BIND_URL = "http://testserver/api/telegram/bind/"
+USE_REDIS = False
+
+CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
+
 # Disable strong password validators to speed CI
 AUTH_PASSWORD_VALIDATORS = []

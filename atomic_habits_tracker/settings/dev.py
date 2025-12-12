@@ -1,6 +1,6 @@
 from .base import *
 
-DEBUG = True
+DEBUG = env("DEBUG", default=True)
 
 DATABASES = {
     "default": {
@@ -13,4 +13,35 @@ DATABASES = {
     }
 }
 
+REDIS_HOST = env("REDIS_HOST", default="localhost")
+REDIS_PORT = env("REDIS_PORT", default=6379)
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/0"
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/0")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND", default=f"redis://{REDIS_HOST}:{REDIS_PORT}/1")
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"redis://{REDIS_HOST}:{REDIS_PORT}/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        },
+    }
+}
+
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:5173",
+    "http://localhost:5173",
+    "http://localhost",
+    "http://localhost:8000",
+    "http://127.0.0.1",
+]
+
+TELEGRAM_BIND_URL = env("TELEGRAM_BIND_URL", default="http://127.0.0.1:8000/api/telegram/bind/")
+
+# CELERY_WORKER_LOG_FILE = None  # Отключаем файловые логи Celery
+# CELERY_WORKER_REDIRECT_STDOUTS = False  # Не перенаправлять stdout
+# CELERY_WORKER_HIJACK_ROOT_LOGGER = False  # Не перехватывать root logger
