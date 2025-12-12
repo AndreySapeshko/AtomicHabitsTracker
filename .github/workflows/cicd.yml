@@ -185,7 +185,7 @@ jobs:
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
-            cd /home/ubuntu/projects/AtomicHabitsTracker
+            cd /home/andrs/projects/AtomicHabitsTracker
 
             echo "🚀 Pulling latest images..."
             docker-compose pull
