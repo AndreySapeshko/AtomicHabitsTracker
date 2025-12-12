@@ -11,7 +11,13 @@ def get_redis():
     if not getattr(settings, "USE_REDIS", True):
         logger.info("⚠️ Redis is disabled — redis_listener will not start")
         return
-    return redis.Redis(host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, decode_responses=True)
+    return redis.Redis(
+        host=settings.REDIS_HOST,
+        port=settings.REDIS_PORT,
+        db=0,
+        password=settings.REDIS_PASSWORD,
+        decode_responses=True,
+    )
 
 
 def push_command(data: dict):
