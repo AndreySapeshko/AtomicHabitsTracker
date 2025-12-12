@@ -92,12 +92,12 @@ jobs:
 
       - name: Install frontend deps
         run: |
-          cd frontend
+          cd aht_app_frontend/habit-frontend
           npm ci
 
       - name: Run frontend tests
         run: |
-          cd frontend
+          cd aht_app_frontend/habit-frontend
           npm run test -- --run
 
 
@@ -117,12 +117,12 @@ jobs:
 
       - name: Install deps
         run: |
-          cd frontend
+          cd aht_app_frontend/habit-frontend
           npm ci
 
       - name: Build frontend
         run: |
-          cd frontend
+          cd aht_app_frontend/habit-frontend
           npm run build
 
 
