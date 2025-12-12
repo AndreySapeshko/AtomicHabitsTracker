@@ -10,11 +10,7 @@ from .redis_queue import push_command
 logger = logging.getLogger("celery")
 
 r = redis.Redis(
-    host=settings.REDIS_HOST,
-    port=settings.REDIS_PORT,
-    db=0,
-    password=settings.REDIS_PASSWORD,
-    decode_responses=True
+    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=0, password=settings.REDIS_PASSWORD, decode_responses=True
 )
 
 
