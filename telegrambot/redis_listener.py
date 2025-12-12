@@ -13,7 +13,7 @@ async def redis_in_listener(dp, bot):
         logger.info("⚠️ Redis is disabled — redis_in_listener will not start")
         return
 
-    r = aioredis.from_url(f"redis://{settings.REDIS_HOST}/0")
+    r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
 
     logger.info("🚀 Start redis_in_listener (входящие апдейты)")
 
@@ -54,7 +54,7 @@ async def redis_listener(bot: Bot):
         logger.info("⚠️ Redis is disabled — redis_listener will not start")
         return
 
-    r = aioredis.from_url(f"redis://{settings.REDIS_HOST}/0")
+    r = aioredis.from_url(settings.REDIS_URL, decode_responses=True)
     logger.info("🚀 Start redis_listener")
 
     while True:
