@@ -146,25 +146,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Backend image
+      - name: Normalize owner to lowercase
+        run: echo "IMAGE_OWNER=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
       - name: Build backend image
         run: |
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/atomic-backend:latest \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-backend:latest \
             -f docker/backend/Dockerfile .
 
       - name: Push backend
-        run: docker push ghcr.io/${{ github.repository_owner }}/atomic-backend:latest
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-backend:latest
 
-      # Frontend image
       - name: Build frontend image
         run: |
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/atomic-frontend:latest \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-frontend:latest \
             -f docker/frontend/Dockerfile .
 
       - name: Push frontend
-        run: docker push ghcr.io/${{ github.repository_owner }}/atomic-frontend:latest
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-frontend:latest
+
 
 
   # -----------------------------
