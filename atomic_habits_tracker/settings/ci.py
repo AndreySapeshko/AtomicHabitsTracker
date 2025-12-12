@@ -18,7 +18,6 @@ CELERY_TASK_ALWAYS_EAGER = True
 
 REDIS_HOST = env("REDIS_HOST", default="localhost")
 REDIS_PORT = env("REDIS_PORT", default=6379)
-REDIS_PASSWORD = "mlCkv2oN#%sZ+GalJfn:CPaB9Tq1dc.K"
 
 USE_TELEGRAM_BOT = False
 TELEGRAM_BOT_TOKEN = "ci-dummy-token"
@@ -29,5 +28,3 @@ CACHES = {"default": {"BACKEND": "django.core.cache.backends.dummy.DummyCache"}}
 
 # Disable strong password validators to speed CI
 AUTH_PASSWORD_VALIDATORS = []
-
-raise RuntimeError("Exception in ci.py")

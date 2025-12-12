@@ -152,6 +152,7 @@ SPECTACULAR_SETTINGS = {
 # Redis
 # ---------------------------
 
+REDIS_PASSWORD = env("REDIS_PASSWORD", default="my_redis_password")
 
 # ---------------------------
 # Celery (base defaults, override in env-specific settings)
