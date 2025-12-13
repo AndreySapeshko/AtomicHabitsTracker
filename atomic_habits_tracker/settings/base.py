@@ -171,9 +171,28 @@ CELERY_RESULT_SERIALIZER = "json"
 CELERY_BEAT_SCHEDULE = {
     "generate_daily_instances_every_midnight": {
         "task": "habit_instances.tasks.generate_daily_instances",
-        "schedule": crontab(minute=0, hour=0),  # каждый день в 00:00
+        "schedule": crontab(minute=0, hour=21),
+    },
+    "send_daily_digest": {
+        "task": "habit_instances.tasks.send_daily_digest",
+        "schedule": crontab(minute=0, hour=5),
+    },
+    "schedule_today_reminders": {
+        "task": "habit_instances.tasks.schedule_reminders_for_today",
+        "schedule": crontab(minute=1, hour=0),
     },
 }
+
+
+# ---------------------------
+# Time and language
+# ---------------------------
+
+TIME_ZONE = "Europe/Moscow"
+USE_TZ = True
+
+LANGUAGE_CODE = "ru-ru"
+USE_I18N = True
 
 # ---------------------------
 # Logging (base, override in prod)

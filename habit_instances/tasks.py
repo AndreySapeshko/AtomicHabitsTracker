@@ -1,10 +1,15 @@
 import logging
+from datetime import timedelta
 
 from celery import shared_task
+from django.utils import timezone
 
+from habit_instances.models import HabitInstance, HabitInstanceStatus
 from habit_instances.services import create_instances_for_all_habits
 
 logger = logging.getLogger("celery")
+
+MOSCOW_OFFSET = timedelta(hours=3)
 
 
 @shared_task
@@ -46,3 +51,75 @@ def send_reminder_for_instance(instance_id: int):
     }
     # Наш Celery task для отправки сообщения
     send_telegram_message.delay(profile.chat_id, text, keyboard_dict=keyboard_dict)
+
+
+@shared_task
+def schedule_reminders_for_today():
+    """
+    Планирует отправку напоминаний для всех инстансов на сегодня
+    строго по времени habit.time_of_day
+    """
+    now = timezone.now()
+    today = timezone.localdate()
+
+    instances = HabitInstance.objects.filter(
+        scheduled_datetime__date=today,
+        status=HabitInstanceStatus.SCHEDULED,
+    ).select_related("habit", "habit__user")
+
+    from habit_instances.tasks import send_reminder_for_instance
+
+    for instance in instances:
+        scheduled_utc = instance.scheduled_datetime - MOSCOW_OFFSET
+
+        # если время уже прошло — не планируем
+        if scheduled_utc <= now:
+            continue
+
+        send_reminder_for_instance.apply_async(
+            args=[instance.id],
+            eta=scheduled_utc,
+        )
+
+
+@shared_task
+def send_daily_digest():
+    """
+    Отправляет пользователю список привычек на сегодня (одним сообщением)
+    """
+    from django.contrib.auth import get_user_model
+
+    from habit_instances.models import HabitInstance
+    from telegrambot.tasks import send_telegram_message
+
+    User = get_user_model()
+    today = timezone.localdate()
+
+    users = User.objects.all().select_related("telegram_profile")
+
+    for user in users:
+        profile = getattr(user, "telegram_profile", None)
+        if not profile or not profile.is_active:
+            continue
+
+        instances = (
+            HabitInstance.objects.filter(
+                habit__user=user,
+                scheduled_datetime__date=today,
+                status=HabitInstanceStatus.SCHEDULED,
+            )
+            .select_related("habit")
+            .order_by("scheduled_datetime")
+        )
+
+        if not instances.exists():
+            continue
+
+        lines = ["📋 *Ваши привычки на сегодня:*", ""]
+
+        for inst in instances:
+            lines.append(f"⏰ {inst.scheduled_datetime.strftime('%H:%M')} — {inst.habit.action}")
+
+        text = "\n".join(lines)
+
+        send_telegram_message.delay(profile.chat_id, text)

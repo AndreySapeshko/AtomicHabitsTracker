@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -14,15 +14,20 @@ User = get_user_model()
 
 def get_next_scheduled_datetime(habit: Habit) -> datetime:
     """
-    Возвращает datetime следующего выполнения привычки.
-    Простой MVP:
-      - следующее выполнение = сегодня + periodicity_days
-      - время = habit.time_of_day
+    Следующее выполнение привычки.
+    Бизнес-логика работает в МСК.
     """
-    now = timezone.now()
-    next_date = now.date() + timedelta(days=habit.periodicity_days)
-    scheduled = timezone.make_aware(datetime.combine(next_date, habit.time_of_day))
-    return scheduled
+    tod = habit.time_of_day
+    if isinstance(tod, str):
+        tod = time.fromisoformat(tod)
+
+    next_date = timezone.now() + timedelta(days=habit.periodicity_days)
+
+    scheduled_msk = datetime.combine(next_date, tod)
+
+    # делаем aware и переводим в UTC
+    scheduled_utc = timezone.make_aware(scheduled_msk) - timedelta(hours=3)
+    return scheduled_utc
 
 
 def should_generate_instance(habit: Habit) -> bool:
@@ -69,10 +74,6 @@ def create_instance_for_habit(habit: Habit) -> HabitInstance | None:
         fix_deadline=fix_deadline,
         status=HabitInstanceStatus.SCHEDULED,
     )
-
-    from habit_instances.tasks import send_reminder_for_instance
-
-    send_reminder_for_instance.apply_async(args=[instance.id], eta=scheduled)
 
     return instance
 
