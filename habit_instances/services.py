@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, time, timedelta
+from zoneinfo import ZoneInfo
 
 from django.contrib.auth import get_user_model
 from django.utils import timezone
@@ -10,6 +11,9 @@ from habits.models import Habit
 logger = logging.getLogger("habit_instances")
 
 User = get_user_model()
+
+MSK = ZoneInfo("Europe/Moscow")
+UTC = ZoneInfo("UTC")
 
 
 def get_next_scheduled_datetime(habit: Habit) -> datetime:
@@ -23,10 +27,8 @@ def get_next_scheduled_datetime(habit: Habit) -> datetime:
 
     next_date = timezone.now() + timedelta(days=habit.periodicity_days)
 
-    scheduled_msk = datetime.combine(next_date, tod)
-
-    # делаем aware и переводим в UTC
-    scheduled_utc = timezone.make_aware(scheduled_msk) - timedelta(hours=3)
+    scheduled_msk = datetime.combine(next_date, tod, tzinfo=MSK)
+    scheduled_utc = scheduled_msk.astimezone(UTC)
     return scheduled_utc
 
 

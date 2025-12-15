@@ -1,5 +1,6 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, time
+from zoneinfo import ZoneInfo
 
 from celery import shared_task
 from django.utils import timezone
@@ -9,7 +10,8 @@ from habit_instances.services import create_instances_for_all_habits
 
 logger = logging.getLogger("celery")
 
-MOSCOW_OFFSET = timedelta(hours=3)
+MSK = ZoneInfo("Europe/Moscow")
+UTC = ZoneInfo("UTC")
 
 
 @shared_task
@@ -67,10 +69,8 @@ def schedule_reminders_for_today():
         status=HabitInstanceStatus.SCHEDULED,
     ).select_related("habit", "habit__user")
 
-    from habit_instances.tasks import send_reminder_for_instance
-
     for instance in instances:
-        scheduled_utc = instance.scheduled_datetime - MOSCOW_OFFSET
+        scheduled_utc = instance.scheduled_datetime
 
         # если время уже прошло — не планируем
         if scheduled_utc <= now:
@@ -80,6 +80,9 @@ def schedule_reminders_for_today():
             args=[instance.id],
             eta=scheduled_utc,
         )
+
+        instance.status = HabitInstanceStatus.PENDING
+        instance.save(update_fields=["status"])
 
 
 @shared_task
@@ -93,7 +96,18 @@ def send_daily_digest():
     from telegrambot.tasks import send_telegram_message
 
     User = get_user_model()
-    today = timezone.localdate()
+
+    # 1. Сегодня по МСК
+    now_msk = timezone.now().astimezone(MSK)
+    today_msk = now_msk.date()
+
+    # 2. Начало и конец дня по МСК
+    start_msk = datetime.combine(today_msk, time.min, tzinfo=MSK)
+    end_msk = datetime.combine(today_msk, time.max, tzinfo=MSK)
+
+    # 3. Переводим в UTC, потому что scheduled_datetime хранится в UTC
+    start_utc = start_msk.astimezone(UTC)
+    end_utc = end_msk.astimezone(UTC)
 
     users = User.objects.all().select_related("telegram_profile")
 
@@ -105,7 +119,8 @@ def send_daily_digest():
         instances = (
             HabitInstance.objects.filter(
                 habit__user=user,
-                scheduled_datetime__date=today,
+                scheduled_datetime__gte=start_utc,
+                scheduled_datetime__lte=end_utc,
                 status=HabitInstanceStatus.SCHEDULED,
             )
             .select_related("habit")
