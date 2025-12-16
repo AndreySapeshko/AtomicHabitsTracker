@@ -152,20 +152,20 @@ jobs:
       - name: Build backend image
         run: |
           docker build \
-            -t ghcr.io/${IMAGE_OWNER}/atomic-backend:latest \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-backend:${GITHUB_SHA} \
             -f docker/backend/Dockerfile .
 
       - name: Push backend
-        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-backend:latest
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-backend:${GITHUB_SHA}
 
       - name: Build frontend image
         run: |
           docker build \
-            -t ghcr.io/${IMAGE_OWNER}/atomic-frontend:latest \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-frontend:${GITHUB_SHA} \
             -f docker/frontend/Dockerfile .
 
       - name: Push frontend
-        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-frontend:latest
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-frontend:${GITHUB_SHA}
 
 
 
@@ -186,11 +186,13 @@ jobs:
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
             cd /home/andrs/projects/AtomicHabitsTracker
-
+            
+            export IMAGE_TAG=${{ github.sha }}
+            
             echo "🚀 Pulling latest images..."
             docker-compose pull
 
             echo "🚀 Restarting services..."
-            docker-compose up -d --build
+            docker-compose up -d --build --force-recreate
 
             echo "🎉 Deploy complete!"
