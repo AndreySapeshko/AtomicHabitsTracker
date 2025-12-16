@@ -169,9 +169,9 @@ CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
 
 CELERY_BEAT_SCHEDULE = {
-    "generate_daily_instances_every_midnight": {
+    "generate_daily_instances": {
         "task": "habit_instances.tasks.generate_daily_instances",
-        "schedule": crontab(minute=0, hour=21),
+        "schedule": crontab(minute=0, hour=20),
     },
     "send_daily_digest": {
         "task": "habit_instances.tasks.send_daily_digest",
@@ -179,7 +179,7 @@ CELERY_BEAT_SCHEDULE = {
     },
     "schedule_today_reminders": {
         "task": "habit_instances.tasks.schedule_reminders_for_today",
-        "schedule": crontab(minute=1, hour=0),
+        "schedule": crontab(minute=0, hour="*/1"),
     },
 }
 
