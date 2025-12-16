@@ -194,7 +194,7 @@ jobs:
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
-            cd /home/andrs/projects/AtomicHabitsTracker
+            cd /home/andrs/deploy/atomic
             
             export IMAGE_TAG=${{ github.sha }}
             
