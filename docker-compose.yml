@@ -36,7 +36,7 @@ services:
       retries: 5
 
   backend:
-    image: ghcr.io/OWNER/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-backend:${IMAGE_TAG}
     container_name: backend
     env_file: .env
     networks:
@@ -59,7 +59,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   celery_worker:
-    image: ghcr.io/OWNER/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-backend:${IMAGE_TAG}
     container_name: celery_worker
     env_file: .env
     networks:
@@ -76,7 +76,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   celery_beat:
-    image: ghcr.io/OWNER/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-backend:${IMAGE_TAG}
     container_name: celery_beat
     env_file: .env
     networks:
@@ -93,7 +93,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   telegrambot:
-    image: ghcr.io/OWNER/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-backend:${IMAGE_TAG}
     container_name: telegrambot
     env_file: .env
     restart: unless-stopped
@@ -109,14 +109,14 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   frontend:
-    image: ghcr.io/OWNER/atomic-frontend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-frontend:${IMAGE_TAG}
     container_name: frontend
     restart: unless-stopped
     networks:
       - internal
 
   nginx:
-    image: ghcr.io/OWNER/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-nginx:${IMAGE_TAG}
     container_name: nginx
     restart: unless-stopped
     networks:
