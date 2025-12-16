@@ -199,9 +199,9 @@ jobs:
             export IMAGE_TAG=${{ github.sha }}
             
             echo "🚀 Pulling latest images..."
-            docker-compose pull
+            docker compose pull
 
             echo "🚀 Restarting services..."
-            docker-compose up -d --build --force-recreate
+            docker compose up -d --build --force-recreate
 
             echo "🎉 Deploy complete!"
