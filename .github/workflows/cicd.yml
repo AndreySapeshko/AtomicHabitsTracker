@@ -167,6 +167,15 @@ jobs:
       - name: Push frontend
         run: docker push ghcr.io/${IMAGE_OWNER}/atomic-frontend:${GITHUB_SHA}
 
+      - name: Build nginx image
+        run: |
+          docker build \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-nginx:${GITHUB_SHA} \
+            -f docker/nginx/Dockerfile .
+
+      - name: Push nginx
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-nginx:${GITHUB_SHA}
+
 
 
   # -----------------------------
