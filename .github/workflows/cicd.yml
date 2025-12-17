@@ -198,6 +198,8 @@ jobs:
     steps:
       - name: Deploy to production
         uses: appleboy/ssh-action@v0.1.10
+        env:
+          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.PROD_SERVER_USER }}
@@ -207,12 +209,12 @@ jobs:
 
             cd ~/deploy/atomic
 
-            echo "➡ Updating IMAGE_TAG to ${GITHUB_SHA}"
+            echo "➡ Updating IMAGE_TAG to $IMAGE_TAG"
 
             if grep -q '^IMAGE_TAG=' .env; then
-              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${GITHUB_SHA}/" .env
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=$IMAGE_TAG/" .env
             else
-              echo "IMAGE_TAG=${GITHUB_SHA}" >> .env
+              echo "IMAGE_TAG=$IMAGE_TAG" >> .env
             fi
 
             docker compose pull
