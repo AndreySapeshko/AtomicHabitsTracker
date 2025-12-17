@@ -93,7 +93,7 @@ services:
       - /etc/timezone:/etc/timezone:ro
 
   telegrambot:
-    image: ghcr.io/andreysapeshko/atomic-backend:${IMAGE_TAG}
+    image: ghcr.io/andreysapeshko/atomic-telegrambot:${IMAGE_TAG}
     container_name: telegrambot
     env_file: .env
     restart: unless-stopped
