@@ -176,6 +176,15 @@ jobs:
       - name: Push nginx
         run: docker push ghcr.io/${IMAGE_OWNER}/atomic-nginx:${GITHUB_SHA}
 
+      - name: Build telegrambot image
+        run: |
+          docker build \
+            -t ghcr.io/${IMAGE_OWNER}/atomic-telegrambot:${GITHUB_SHA} \
+            -f docker/telegrambot/Dockerfile .
+
+      - name: Push telegrambot image
+        run: docker push ghcr.io/${IMAGE_OWNER}/atomic-telegrambot:${GITHUB_SHA}
+
 
 
   # -----------------------------
