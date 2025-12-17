@@ -194,16 +194,16 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: docker-build
     runs-on: ubuntu-latest
-
+    env:
+      IMAGE_TAG: ${{ github.sha }}
     steps:
       - name: Deploy to production
         uses: appleboy/ssh-action@v0.1.10
-        env:
-          IMAGE_TAG: ${{ github.sha }}
         with:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
+          envs: IMAGE_TAG
           script: |
             set -e
 
