@@ -196,21 +196,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy to production server
+      - name: Deploy to production
         uses: appleboy/ssh-action@v0.1.10
         with:
           host: ${{ secrets.PROD_SERVER_HOST }}
           username: ${{ secrets.PROD_SERVER_USER }}
           key: ${{ secrets.PROD_SERVER_SSH_KEY }}
           script: |
-            cd /home/andrs/deploy/atomic
-            
-            export IMAGE_TAG=${{ github.sha }}
-            
-            echo "🚀 Pulling latest images..."
+            set -e
+
+            cd ~/deploy/atomic
+
+            echo "➡ Updating IMAGE_TAG to ${GITHUB_SHA}"
+
+            if grep -q '^IMAGE_TAG=' .env; then
+              sed -i "s/^IMAGE_TAG=.*/IMAGE_TAG=${GITHUB_SHA}/" .env
+            else
+              echo "IMAGE_TAG=${GITHUB_SHA}" >> .env
+            fi
+
             docker compose pull
-
-            echo "🚀 Restarting services..."
-            docker compose up -d --build --force-recreate
-
+            docker compose up -d
+            
             echo "🎉 Deploy complete!"
