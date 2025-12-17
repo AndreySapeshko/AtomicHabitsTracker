@@ -130,6 +130,7 @@ celerybeat.pid
 
 # Environments
 .env
+!.env.production
 .venv
 env/
 venv/
@@ -209,5 +210,3 @@ aht_app_frontend/habit-frontend/yarn-debug.log*
 aht_app_frontend/habit-frontend/yarn-error.log*
 aht_app_frontend/habit-frontend/pnpm-debug.log*
 
-# Env
-aht_app_frontend/habit-frontend/.env*
