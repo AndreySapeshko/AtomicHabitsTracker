@@ -175,11 +175,11 @@ CELERY_BEAT_SCHEDULE = {
     },
     "send_daily_digest": {
         "task": "habit_instances.tasks.send_daily_digest",
-        "schedule": crontab(minute="*/3"),
+        "schedule": crontab(minute=0, hour="*/1"),
     },
     "schedule_today_reminders": {
         "task": "habit_instances.tasks.schedule_reminders_for_today",
-        "schedule": crontab(minute="*/3"),
+        "schedule": crontab(minute=0, hour="*/1"),
     },
 }
 

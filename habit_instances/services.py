@@ -25,11 +25,10 @@ def get_next_scheduled_datetime(habit: Habit) -> datetime:
     if isinstance(tod, str):
         tod = time.fromisoformat(tod)
 
-    next_date = timezone.now() + timedelta(days=habit.periodicity_days)
+    next_date = timezone.now().date() + timedelta(days=habit.periodicity_days)
 
-    scheduled_msk = datetime.combine(next_date, tod, tzinfo=MSK)
-    scheduled_utc = scheduled_msk.astimezone(UTC)
-    return scheduled_utc
+    scheduled = datetime.combine(next_date, tod, ZoneInfo("Europe/Moscow"))
+    return scheduled
 
 
 def should_generate_instance(habit: Habit) -> bool:
