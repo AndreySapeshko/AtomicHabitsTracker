@@ -61,6 +61,7 @@ def schedule_reminders_for_today():
     Планирует отправку напоминаний для всех инстансов на сегодня
     строго по времени habit.time_of_day
     """
+    logger.info("ENTER schedule_reminders_for_today")
     now = timezone.now()
     today = timezone.localdate()
 
@@ -91,6 +92,7 @@ def send_daily_digest():
     """
     Отправляет пользователю список привычек на сегодня (одним сообщением)
     """
+    logger.info("ENTER send_daily_digest")
     from django.contrib.auth import get_user_model
 
     from habit_instances.models import HabitInstance
@@ -100,8 +102,8 @@ def send_daily_digest():
 
     today = timezone.now().date()
 
-    start = datetime.combine(today, time.min)
-    end = datetime.combine(today, time.max)
+    start = datetime.combine(today, time.min, ZoneInfo("Europe/Moscow"))
+    end = datetime.combine(today, time.max, ZoneInfo("Europe/Moscow"))
 
     users = User.objects.all().select_related("telegram_profile")
     logger.info(f"users: {users}")
