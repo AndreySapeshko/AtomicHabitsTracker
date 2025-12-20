@@ -76,13 +76,14 @@ def schedule_reminders_for_today():
         if scheduled_utc <= now:
             continue
 
+        instance.status = HabitInstanceStatus.PENDING
+        instance.save(update_fields=["status"])
+        logger.info(f"schedule_reminders_for_today instance.status: {instance.status}")
+
         send_reminder_for_instance.apply_async(
             args=[instance.id],
             eta=scheduled_utc,
         )
-
-        instance.status = HabitInstanceStatus.PENDING
-        instance.save(update_fields=["status"])
 
 
 @shared_task
@@ -97,19 +98,13 @@ def send_daily_digest():
 
     User = get_user_model()
 
-    # 1. Сегодня по МСК
-    now_msk = timezone.now().astimezone(MSK)
-    today_msk = now_msk.date()
+    today = timezone.now().date()
 
-    # 2. Начало и конец дня по МСК
-    start_msk = datetime.combine(today_msk, time.min, tzinfo=MSK)
-    end_msk = datetime.combine(today_msk, time.max, tzinfo=MSK)
-
-    # 3. Переводим в UTC, потому что scheduled_datetime хранится в UTC
-    start_utc = start_msk.astimezone(UTC)
-    end_utc = end_msk.astimezone(UTC)
+    start = datetime.combine(today, time.min)
+    end = datetime.combine(today, time.max)
 
     users = User.objects.all().select_related("telegram_profile")
+    logger.info(f"users: {users}")
 
     for user in users:
         profile = getattr(user, "telegram_profile", None)
@@ -119,14 +114,14 @@ def send_daily_digest():
         instances = (
             HabitInstance.objects.filter(
                 habit__user=user,
-                scheduled_datetime__gte=start_utc,
-                scheduled_datetime__lte=end_utc,
+                scheduled_datetime__gte=start,
+                scheduled_datetime__lte=end,
                 status=HabitInstanceStatus.SCHEDULED,
             )
             .select_related("habit")
             .order_by("scheduled_datetime")
         )
-
+        logger.info(f"instances: {instances}")
         if not instances.exists():
             continue
 
