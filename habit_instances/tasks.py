@@ -1,12 +1,12 @@
 import logging
-from datetime import datetime, time
-from zoneinfo import ZoneInfo
 
+from zoneinfo import ZoneInfo
 from celery import shared_task
+from django.db import transaction
 from django.utils import timezone
 
 from habit_instances.models import HabitInstance, HabitInstanceStatus
-from habit_instances.services import create_instances_for_all_habits
+from habit_instances.services import create_instances_for_all_habits, get_instances_for_today
 
 logger = logging.getLogger("celery")
 
@@ -65,26 +65,27 @@ def schedule_reminders_for_today():
     now = timezone.now()
     today = timezone.localdate()
 
-    instances = HabitInstance.objects.filter(
-        scheduled_datetime__date=today,
-        status=HabitInstanceStatus.SCHEDULED,
-    ).select_related("habit", "habit__user")
-
-    for instance in instances:
-        scheduled_utc = instance.scheduled_datetime
-
-        # если время уже прошло — не планируем
-        if scheduled_utc <= now:
-            continue
-
-        instance.status = HabitInstanceStatus.PENDING
-        instance.save(update_fields=["status"])
-        logger.info(f"schedule_reminders_for_today instance.status: {instance.status}")
-
-        send_reminder_for_instance.apply_async(
-            args=[instance.id],
-            eta=scheduled_utc,
+    with transaction.atomic():
+        instances = (
+            HabitInstance.objects.select_for_update(skip_locked=True)
+            .filter(
+                scheduled_datetime__date=today,
+                status=HabitInstanceStatus.SCHEDULED,
+            )
+            .select_related("habit", "habit__user")
         )
+
+        for instance in instances:
+            if instance.scheduled_datetime <= now:
+                continue
+
+            instance.status = HabitInstanceStatus.PENDING
+            instance.save(update_fields=["status"])
+
+            send_reminder_for_instance.apply_async(
+                args=[instance.id],
+                eta=instance.scheduled_datetime,
+            )
 
 
 @shared_task
@@ -95,15 +96,15 @@ def send_daily_digest():
     logger.info("ENTER send_daily_digest")
     from django.contrib.auth import get_user_model
 
-    from habit_instances.models import HabitInstance
+    # from habit_instances.models import HabitInstance
     from telegrambot.tasks import send_telegram_message
 
     User = get_user_model()
 
-    today = timezone.now().date()
+    # today = timezone.now().date()
 
-    start = datetime.combine(today, time.min, ZoneInfo("Europe/Moscow"))
-    end = datetime.combine(today, time.max, ZoneInfo("Europe/Moscow"))
+    # start = datetime.combine(today, time.min, ZoneInfo("Europe/Moscow"))
+    # end = datetime.combine(today, time.max, ZoneInfo("Europe/Moscow"))
 
     users = User.objects.all().select_related("telegram_profile")
     logger.info(f"users: {users}")
@@ -113,18 +114,19 @@ def send_daily_digest():
         if not profile or not profile.is_active:
             continue
 
-        instances = (
-            HabitInstance.objects.filter(
-                habit__user=user,
-                scheduled_datetime__gte=start,
-                scheduled_datetime__lte=end,
-                status=HabitInstanceStatus.SCHEDULED,
-            )
-            .select_related("habit")
-            .order_by("scheduled_datetime")
-        )
+        instances = get_instances_for_today(user)
+        #     (
+        #     HabitInstance.objects.filter(
+        #         habit__user=user,
+        #         scheduled_datetime__gte=start,
+        #         scheduled_datetime__lte=end,
+        #         status=HabitInstanceStatus.SCHEDULED,
+        #     )
+        #     .select_related("habit")
+        #     .order_by("scheduled_datetime")
+        # )
         logger.info(f"instances: {instances}")
-        if not instances.exists():
+        if not instances:
             continue
 
         lines = ["📋 *Ваши привычки на сегодня:*", ""]
